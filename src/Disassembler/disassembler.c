@@ -1,14 +1,18 @@
 #include "disassembler.h"
 
-char* GetOpcode(int opcode)
+int DecodeInstruction(int* buffer, int pc)
 {
+    int code = *(buffer + pc);
+    int opBytes = 1;
+    fprintf(stderr, "OPCODE: %02x\n", code);
     char* opcodeStr;
-    switch(opcode) {
+    switch (code) {
     case 0x00: 
         opcodeStr = "NOP";
         break;
     case 0x01:
         opcodeStr = "";
+        opBytes = 3;
         break;
     case 0x02:
         opcodeStr = "";
@@ -62,7 +66,7 @@ char* GetOpcode(int opcode)
         opcodeStr = "";
         break;
     case 0x13: 
-        opcodeStr = "NOP";
+        opcodeStr = "";
         break;
     case 0x14:
         opcodeStr = "";
@@ -119,7 +123,7 @@ char* GetOpcode(int opcode)
         opcodeStr = "";
         break;
     case 0x26: 
-        opcodeStr = "NOP";
+        opcodeStr = "";
         break;
     case 0x27:
         opcodeStr = "";
@@ -176,7 +180,7 @@ char* GetOpcode(int opcode)
         opcodeStr = "";
         break;
     case 0x39: 
-        opcodeStr = "NOP";
+        opcodeStr = "";
         break;
     case 0x3A:
         opcodeStr = "";
@@ -233,7 +237,7 @@ char* GetOpcode(int opcode)
         opcodeStr = "";
         break;
     case 0x4C: 
-        opcodeStr = "NOP";
+        opcodeStr = "";
         break;
     case 0x4D:
         opcodeStr = "";
@@ -290,7 +294,7 @@ char* GetOpcode(int opcode)
         opcodeStr = "";
         break;
     case 0x5F: 
-        opcodeStr = "NOP";
+        opcodeStr = "";
         break;
     case 0x60:
         opcodeStr = "";
@@ -776,6 +780,10 @@ char* GetOpcode(int opcode)
         opcodeStr = UNDEFINED_OP_CODE;
         break;
     }
+
+
+    printf("%s\n", opcodeStr);
+    return opBytes;
 }
 
 void PrintHexBuffer(const int* buffer, size_t buflen)
@@ -793,9 +801,9 @@ void PrintHexBuffer(const int* buffer, size_t buflen)
         putchar('\n');
 }
 
-int* ReadFileToHexBuffer(FILE* fp, size_t* filesize)
+unsigned int* ReadFileToHexBuffer(FILE* fp, size_t* filesize)
 {
-    int* buffer;
+    unsigned int* buffer;
     size_t i;
     int c;
 
@@ -803,9 +811,9 @@ int* ReadFileToHexBuffer(FILE* fp, size_t* filesize)
     *filesize = ftell(fp);
     rewind(fp);
 
-    buffer = (int*)malloc(sizeof(int) * *(filesize));
+    buffer = (unsigned int*)malloc(sizeof(unsigned int) * (*filesize));
     for (i = 0; i < *filesize && (c = fgetc(fp)) != EOF; i++) {
-        buffer[i] = c;
+        *(buffer + i) = c;
     }
 
     return buffer;
@@ -828,13 +836,32 @@ int main(int argc, char** argv)
     }
     
     size_t filesize;
-    int* buffer = ReadFileToHexBuffer(fp, &filesize);
+    unsigned int* buffer = ReadFileToHexBuffer(fp, &filesize);
     // PrintHexBuffer(buffer, filesize);
     fclose(fp);
     
-    for(size_t i = 0; i < filesize; i++)
-    {
-        printf("%s\n", GetOpcode(buffer[i]));
-    } 
+    int opBytes = 0;
+    // while (buffer != NULL) {
+    //     opBytes += DecodeInstruction(buffer, opBytes);
+    //     buffer += opBytes;
+    // }
+
+    for (size_t i = 0; opBytes <= filesize; i++) {
+        opBytes += DecodeInstruction(buffer, opBytes);
+    }
+
+    // int bufSize = 10;
+    // int* buf = (int*)malloc(sizeof(int) * bufSize);
+
+    // for (int i = 0; i < bufSize; i++) {
+    //     *(buf + i) = i;
+    // }
+    
+    // for (int i = 0; i < bufSize; i++) {
+    //     printf("%d\n", *(buf + i));
+    // }
+
+    
+
     return 0;
 }

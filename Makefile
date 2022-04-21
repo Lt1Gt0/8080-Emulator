@@ -15,7 +15,7 @@ DISASSEMBLER_OBJ_DIR = $(OBJ_DIR)/$(DISASSEMBLER_OBJNAME)
 
 #Compiler and linker things
 CC = gcc
-CCFLAGS = #-g -Wall -Wextra
+CCFLAGS = -g#-g -Wall -Wextra
 CCFLAGS +=
 LD = ld
 LDFLAGS = 
@@ -37,7 +37,7 @@ disassembler: setup $(DISASSEMBLER_OBJ)
 $(DISASSEMBLER_OBJ): $(DISASSEMBLER_OBJS)
 	@echo ---- LINKING $^ ----
 	@mkdir -p $(@D)
-	$(CC) $^ -o $@
+	$(CC) $(CCFLAGS) $^ -o $@
 
 $(DISASSEMBLER_OBJ_DIR)/%.o: $(DISASSEMBLER_SRC_DIR)/%.c
 	@echo ---- COMPILING $^ ----

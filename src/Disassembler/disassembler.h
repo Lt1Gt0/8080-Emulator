@@ -7,8 +7,8 @@
 
 #define UNDEFINED_OP_CODE "UNDF"
 
-char* GetOpcode(int opcode);
-int* ReadFileToHexBuffer(FILE* fp, size_t* filesize);
+int DecodeInstruction(int* buffer, int pc);
+unsigned int* ReadFileToHexBuffer(FILE* fp, size_t* filesize);
 void PrintHexBuffer(const int* buffer, size_t buflen);
 
 
