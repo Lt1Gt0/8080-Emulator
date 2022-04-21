@@ -7,9 +7,9 @@
 
 #define UNDEFINED_OP_CODE "UNDF"
 
-int DecodeInstruction(int* buffer, int pc);
-unsigned int* ReadFileToHexBuffer(FILE* fp, size_t* filesize);
-void PrintHexBuffer(const int* buffer, size_t buflen);
+int DecodeInstruction(unsigned char* buffer, int pc);
+unsigned char* ReadFileToHexBuffer(FILE* fp, size_t* filesize);
+void PrintHexBuffer(const unsigned char* buffer, size_t buflen);
 
 
 #endif // __DISASSEMBLER_H
