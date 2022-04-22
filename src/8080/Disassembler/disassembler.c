@@ -5,7 +5,6 @@ int DecodeInstruction(unsigned char* buffer, int pc)
     unsigned char* code = &buffer[pc];
     int opBytes = 1;
     printf("%04x: ", pc);
-    // char* opcodeStr;
 
     switch (*code) {
     case 0x00: 
@@ -822,12 +821,10 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         break;
     default:
         printf(UNDEFINED_OP_CODE);
-        // opcodeStr = UNDEFINED_OP_CODE;
         break;
     }
 
     printf("\n");
-    // printf("%s\n", opcodeStr);
     return opBytes;
 }
 
@@ -861,33 +858,4 @@ unsigned char* ReadFileToHexBuffer(FILE* fp, size_t* filesize)
     fclose(fp);
 
     return buffer;
-}
-
-
-int main(int argc, char** argv)
-{
-    if (argc < 2) {
-        printf("Invalid Argument Count\n");
-        return -1;
-    }
-
-    FILE* fp = fopen(argv[1], "r+b");
-    
-    if (fp == NULL) {
-        printf("Invalid File Input\n");
-        fclose(fp);
-        return -1;
-    }
-    
-    size_t filesize;
-    unsigned char* buffer = ReadFileToHexBuffer(fp, &filesize);
-    // PrintHexBuffer(buffer, filesize);
-    
-    size_t progCount = 0;
-    while (progCount < filesize) {
-        progCount += DecodeInstruction(buffer, progCount);
-    }
-
-
-    return 0;
 }
