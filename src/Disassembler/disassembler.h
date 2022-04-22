@@ -2,6 +2,8 @@
 #ifndef __DISASSEMBLER_H
 #define __DISASSEMBLER_H
 
+#include "../8080.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -12,10 +12,11 @@ int Emulate8080p(State8080* state)
 
     switch (*opcode) {
     case 0x00:
-        UndefinedInstuction(state);
         break;
     case 0x01:
-        UndefinedInstuction(state);
+        state->c = opcode[1];
+        state->b = opcode[2];
+        state->pc += 2;
         break;
     case 0x02:
         UndefinedInstuction(state);
@@ -203,7 +204,7 @@ int Emulate8080p(State8080* state)
     case 0x3F:
         UndefinedInstuction(state);
         break;
-    case 0x30:
+    case 0x40:
         UndefinedInstuction(state);
         break;
     case 0x41:

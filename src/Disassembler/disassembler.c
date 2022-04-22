@@ -53,7 +53,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR C");
         break;
     case 0x0E:
-        printf("MVI C, #0x%02x", code[1]);
+        printf("MVI C, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x0F:
@@ -79,7 +79,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR D"); 
         break;
     case 0x16:
-        printf("MVI D, #0x%02x", code[1]);
+        printf("MVI D, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x17:
@@ -104,7 +104,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR E");
         break;
     case 0x1E:
-        printf("MVI E, #0x%02x", code[1]);
+        printf("MVI E, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x1F:
@@ -131,7 +131,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR H");
         break;
     case 0x26: 
-        printf("MVI H, #0x%02x", code[1]);
+        printf("MVI H, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x27:
@@ -143,7 +143,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
     case 0x29:
         printf("DAD H");
         break;
-    case 0x2A: /////////////////
+    case 0x2A:
         printf("LHLD $%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
@@ -157,7 +157,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR L");
         break;
     case 0x2E:
-        printf("MVI L, #0x%02x", code[1]);
+        printf("MVI L, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x2F:
@@ -166,7 +166,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
     case 0x30:
         printf("NOP");
         break;
-    case 0x31: ////////////////////
+    case 0x31: 
         printf("LXI SP, #$%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
@@ -184,7 +184,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR M");
         break;
     case 0x36:
-        printf("MVI M, #0x%02x", code[1]);
+        printf("MVI M, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x37:
@@ -196,7 +196,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
     case 0x39: 
         printf("DAD SP");
         break;
-    case 0x3A: ////////////////////
+    case 0x3A:
         printf("LDA $%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
@@ -210,7 +210,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DCR A");
         break;
     case 0x3E:
-        printf("MVI A, #0x%02x", code[1]);
+        printf("MVI A, #$%02x", code[1]);
         opBytes = 2;
         break;
     case 0x3F:
