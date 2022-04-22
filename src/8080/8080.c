@@ -1,5 +1,12 @@
 #include "8080.h"
 
+State8080* Init8080()
+{
+    State8080* state = calloc(1, sizeof(State8080));
+    state->memory = malloc(0x10000); // Allocate 16k worth of memory
+    return state;
+}
+
 void UndefinedInstuction(State8080* state)
 {
     printf("UNDEFINED OPCODE!\n");
@@ -13,195 +20,199 @@ int Emulate8080p(State8080* state)
     switch (*opcode) {
     case 0x00: // NOP
         break;
-    case 0x01: // LXI B, word
+    case 0x01: // LXI B, D16
         state->c = opcode[1];
         state->b = opcode[2];
         state->pc += 2;
         break;
-    case 0x02:
+    case 0x02: //STAX B
         UndefinedInstuction(state);
         break;
-    case 0x03:
+    case 0x03: // INX B
         UndefinedInstuction(state);
         break;
-    case 0x04:
+    case 0x04: // INR B
         UndefinedInstuction(state);
         break;
-    case 0x05:
+    case 0x05: // DCR B
         UndefinedInstuction(state);
         break;
-    case 0x06:
+    case 0x06: // MVI B, D8
+        state->b = opcode[1];
+        state->pc += 1;
+        break;
+    case 0x07: // RLC
         UndefinedInstuction(state);
         break;
-    case 0x07:
+    case 0x08: // NOP
+        break;
+    case 0x09: // DAD B
         UndefinedInstuction(state);
         break;
-    case 0x08:
+    case 0x0A: // LDAX B
         UndefinedInstuction(state);
         break;
-    case 0x09:
+    case 0x0B: // DCX B
         UndefinedInstuction(state);
         break;
-    case 0x0A:
+    case 0x0C: // INR C
         UndefinedInstuction(state);
         break;
-    case 0x0B:
+    case 0x0D: // DCR C
         UndefinedInstuction(state);
         break;
-    case 0x0C:
+    case 0x0E: // MVI C, D8
+        state->c = opcode[1];
+        state->pc += 1;
+        break;
+    case 0x0F: // RRC
         UndefinedInstuction(state);
         break;
-    case 0x0D:
+    case 0x10: // NOP
+        break;
+    case 0x11: // LXI D, D16
+        state->e = opcode[1];
+        state->d = opcode[2];
+        state->pc += 2;
+        break;
+    case 0x12: // STAX D
         UndefinedInstuction(state);
         break;
-    case 0x0E:
+    case 0x13: // INX D
         UndefinedInstuction(state);
         break;
-    case 0x0F:
+    case 0x14: // INR D
         UndefinedInstuction(state);
         break;
-    case 0x10:
+    case 0x15: // DCR D
         UndefinedInstuction(state);
         break;
-    case 0x11:
+    case 0x16: // MVI D, D8
+        state->d = opcode[1];
+        state->pc += 1;
+        break;
+    case 0x17: // RAL
         UndefinedInstuction(state);
         break;
-    case 0x12:
+    case 0x18: // NOP
+        break;
+    case 0x19: // DAD D
         UndefinedInstuction(state);
         break;
-    case 0x13:
+    case 0x1A: // LDAX D
         UndefinedInstuction(state);
         break;
-    case 0x14:
+    case 0x1B: // DCX D
         UndefinedInstuction(state);
         break;
-    case 0x15:
+    case 0x1C: // INR E
         UndefinedInstuction(state);
         break;
-    case 0x16:
+    case 0x1D: // DCR E
         UndefinedInstuction(state);
         break;
-    case 0x17:
+    case 0x1E: // MVI E, D8
+        state->e = opcode[1];
+        state->pc += 1;
+        break;
+    case 0x1F: // RAR
         UndefinedInstuction(state);
         break;
-    case 0x18:
+    case 0x20: // NOP
+        break;
+    case 0x21: // LXI H, D16
+        state->l = opcode[1];
+        state->h = opcode[2];
+        state->pc += 2;
+        break;
+    case 0x22: // SHDL adr
         UndefinedInstuction(state);
         break;
-    case 0x19:
+    case 0x23: // INX H
         UndefinedInstuction(state);
         break;
-    case 0x1A:
+    case 0x24: // INR H
         UndefinedInstuction(state);
         break;
-    case 0x1B:
+    case 0x25: // DCR H
         UndefinedInstuction(state);
         break;
-    case 0x1C:
+    case 0x26: // MVI H, D8
+        state->h = opcode[1];
+        state->pc += 1;
+        break;
+    case 0x27: // DAA
         UndefinedInstuction(state);
         break;
-    case 0x1D:
+    case 0x28: // NOP
+        break;
+    case 0x29: // DAD H
         UndefinedInstuction(state);
         break;
-    case 0x1E:
+    case 0x2A: // LHLD adr
         UndefinedInstuction(state);
         break;
-    case 0x1F:
+    case 0x2B: // DCX H
         UndefinedInstuction(state);
         break;
-    case 0x20:
+    case 0x2C: // INR L
         UndefinedInstuction(state);
         break;
-    case 0x21:
+    case 0x2D: // DCR L
         UndefinedInstuction(state);
         break;
-    case 0x22:
+    case 0x2E: // MVI L, D8
+        state->l = opcode[1];
+        state->pc += 1;
+        break;
+    case 0x2F: // CMA
         UndefinedInstuction(state);
         break;
-    case 0x23:
+    case 0x30: // NOP
+        break;
+    case 0x31: // LXI SP, D16
         UndefinedInstuction(state);
         break;
-    case 0x24:
+    case 0x32: // STA adr
         UndefinedInstuction(state);
         break;
-    case 0x25:
+    case 0x33: // INX SP
         UndefinedInstuction(state);
         break;
-    case 0x26:
+    case 0x34: // INR M
         UndefinedInstuction(state);
         break;
-    case 0x27:
+    case 0x35: // DCR M
         UndefinedInstuction(state);
         break;
-    case 0x28:
+    case 0x36: // MVI M, D8
         UndefinedInstuction(state);
         break;
-    case 0x29:
+    case 0x37: // STC
         UndefinedInstuction(state);
         break;
-    case 0x2A:
+    case 0x38: // NOP
+        break;
+    case 0x39: // DAD SP
         UndefinedInstuction(state);
         break;
-    case 0x2B:
+    case 0x3A: // LDA adr
         UndefinedInstuction(state);
         break;
-    case 0x2C:
+    case 0x3B: // DCX SP
         UndefinedInstuction(state);
         break;
-    case 0x2D:
+    case 0x3C: // INR A
         UndefinedInstuction(state);
         break;
-    case 0x2E:
+    case 0x3D: // DCR A
         UndefinedInstuction(state);
         break;
-    case 0x2F:
-        UndefinedInstuction(state);
+    case 0x3E: // MVI A, D8
+        state->a = opcode[1];
+        state->pc += 1;
         break;
-    case 0x30:
-        UndefinedInstuction(state);
-        break;
-    case 0x31:
-        UndefinedInstuction(state);
-        break;
-    case 0x32:
-        UndefinedInstuction(state);
-        break;
-    case 0x33:
-        UndefinedInstuction(state);
-        break;
-    case 0x34:
-        UndefinedInstuction(state);
-        break;
-    case 0x35:
-        UndefinedInstuction(state);
-        break;
-    case 0x36:
-        UndefinedInstuction(state);
-        break;
-    case 0x37:
-        UndefinedInstuction(state);
-        break;
-    case 0x38:
-        UndefinedInstuction(state);
-        break;
-    case 0x39:
-        UndefinedInstuction(state);
-        break;
-    case 0x3A:
-        UndefinedInstuction(state);
-        break;
-    case 0x3B:
-        UndefinedInstuction(state);
-        break;
-    case 0x3C:
-        UndefinedInstuction(state);
-        break;
-    case 0x3D:
-        UndefinedInstuction(state);
-        break;
-    case 0x3E:
-        UndefinedInstuction(state);
-        break;
-    case 0x3F:
+    case 0x3F: // CMC
         UndefinedInstuction(state);
         break;
     case 0x40: // MOV B, B
@@ -396,388 +407,386 @@ int Emulate8080p(State8080* state)
     case 0x7F: // MOV A, A
         // Set register to itself so just break
         break;
-    case 0x80:
+    case 0x80: // ADD B
         UndefinedInstuction(state);
         break;
-    case 0x81:
+    case 0x81: // ADD C
         UndefinedInstuction(state);
         break;
-    case 0x82:
+    case 0x82: // ADD D
         UndefinedInstuction(state);
         break;
-    case 0x83:
+    case 0x83: // ADD E
         UndefinedInstuction(state);
         break;
-    case 0x84:
+    case 0x84: // ADD H
         UndefinedInstuction(state);
         break;
-    case 0x85:
+    case 0x85: // ADD L
         UndefinedInstuction(state);
         break;
-    case 0x86:
+    case 0x86: // ADD M
         UndefinedInstuction(state);
         break;
-    case 0x87:
+    case 0x87: // ADD A
         UndefinedInstuction(state);
         break;
-    case 0x88:
+    case 0x88: // ADC B
         UndefinedInstuction(state);
         break;
-    case 0x89:
+    case 0x89: // ADC C
         UndefinedInstuction(state);
         break;
-    case 0x8A:
+    case 0x8A: // ADC D
         UndefinedInstuction(state);
         break;
-    case 0x8B:
+    case 0x8B: // ADC E
         UndefinedInstuction(state);
         break;
-    case 0x8C:
+    case 0x8C: // ADC H
         UndefinedInstuction(state);
         break;
-    case 0x8D:
+    case 0x8D: // ADC L
         UndefinedInstuction(state);
         break;
-    case 0x8E:
+    case 0x8E: // ADC M
         UndefinedInstuction(state);
         break;
-    case 0x8F:
+    case 0x8F: // ADC A
         UndefinedInstuction(state);
         break;
-    case 0x90:
+    case 0x90: // SUB B
         UndefinedInstuction(state);
         break;
-    case 0x91:
+    case 0x91: // SUB C
         UndefinedInstuction(state);
         break;
-    case 0x92:
+    case 0x92: // SUB D
         UndefinedInstuction(state);
         break;
-    case 0x93:
+    case 0x93: // SUB E
         UndefinedInstuction(state);
         break;
-    case 0x94:
+    case 0x94: // SUB H
         UndefinedInstuction(state);
         break;
-    case 0x95:
+    case 0x95: // SUB L
         UndefinedInstuction(state);
         break;
-    case 0x96:
+    case 0x96: // SUB M
         UndefinedInstuction(state);
         break;
-    case 0x97:
+    case 0x97: // SUB A
         UndefinedInstuction(state);
         break;
-    case 0x98:
+    case 0x98: // SBB B
         UndefinedInstuction(state);
         break;
-    case 0x99:
+    case 0x99: // SBB C
         UndefinedInstuction(state);
         break;
-    case 0x9A:
+    case 0x9A: // SBB D
         UndefinedInstuction(state);
         break;
-    case 0x9B:
+    case 0x9B: // SBB E
         UndefinedInstuction(state);
         break;
-    case 0x9C:
+    case 0x9C: // SBB H
         UndefinedInstuction(state);
         break;
-    case 0x9D:
+    case 0x9D: // SBB L
         UndefinedInstuction(state);
         break;
-    case 0x9E:
+    case 0x9E: // SBB M
         UndefinedInstuction(state);
         break;
-    case 0x9F:
+    case 0x9F: // SBB A
         UndefinedInstuction(state);
         break;
-    case 0xA0:
+    case 0xA0: // ANA B
         UndefinedInstuction(state);
         break;
-    case 0xA1:
+    case 0xA1: // ANA C
         UndefinedInstuction(state);
         break;
-    case 0xA2:
+    case 0xA2: // ANA D
         UndefinedInstuction(state);
         break;
-    case 0xA3:
+    case 0xA3: // ANA E
         UndefinedInstuction(state);
         break;
-    case 0xA4:
+    case 0xA4: // ANA H
         UndefinedInstuction(state);
         break;
-    case 0xA5:
+    case 0xA5: // ANA L
         UndefinedInstuction(state);
         break;
-    case 0xA6:
+    case 0xA6: // ANA M
         UndefinedInstuction(state);
         break;
-    case 0xA7:
+    case 0xA7: // ANA A
         UndefinedInstuction(state);
         break;
-    case 0xA8:
+    case 0xA8: // XRA B
         UndefinedInstuction(state);
         break;
-    case 0xA9:
+    case 0xA9: // XRA C
         UndefinedInstuction(state);
         break;
-    case 0xAA:
+    case 0xAA: // XRA D
         UndefinedInstuction(state);
         break;
-    case 0xAB:
+    case 0xAB: // XRA E
         UndefinedInstuction(state);
         break;
-    case 0xAC:
+    case 0xAC: // XRA H
         UndefinedInstuction(state);
         break;
-    case 0xAD:
+    case 0xAD: // XRA L
         UndefinedInstuction(state);
         break;
-    case 0xAE:
+    case 0xAE: // XRA M
         UndefinedInstuction(state);
         break;
-    case 0xAF:
+    case 0xAF: // XRA A
         UndefinedInstuction(state);
         break;
-    case 0xB0:
+    case 0xB0: // ORA B
         UndefinedInstuction(state);
         break;
-    case 0xB1:
+    case 0xB1: // ORA C
         UndefinedInstuction(state);
         break;
-    case 0xB2:
+    case 0xB2: // ORA D
         UndefinedInstuction(state);
         break;
-    case 0xB3:
+    case 0xB3: // ORA E
         UndefinedInstuction(state);
         break;
-    case 0xB4:
+    case 0xB4: // ORA H
         UndefinedInstuction(state);
         break;
-    case 0xB5:
+    case 0xB5: // ORA L
         UndefinedInstuction(state);
         break;
-    case 0xB6:
+    case 0xB6: // ORA M
         UndefinedInstuction(state);
         break;
-    case 0xB7:
+    case 0xB7: // ORA A
         UndefinedInstuction(state);
         break;
-    case 0xB8:
+    case 0xB8: // CMP B
         UndefinedInstuction(state);
         break;
-    case 0xB9:
+    case 0xB9: // CMP C
         UndefinedInstuction(state);
         break;
-    case 0xBA:
+    case 0xBA: // CMP D
         UndefinedInstuction(state);
         break;
-    case 0xBB:
+    case 0xBB: // CMP E
         UndefinedInstuction(state);
         break;
-    case 0xBC:
+    case 0xBC: // CMP H
         UndefinedInstuction(state);
         break;
-    case 0xBD:
+    case 0xBD: // CMP L
         UndefinedInstuction(state);
         break;
-    case 0xBE:
+    case 0xBE: // CMP M
         UndefinedInstuction(state);
         break;
-    case 0xBF:
+    case 0xBF: // CMP A
         UndefinedInstuction(state);
         break;
-    case 0xC0:
+    case 0xC0: // RNZ
         UndefinedInstuction(state);
         break;
-    case 0xC1:
+    case 0xC1: // POP B
         UndefinedInstuction(state);
         break;
-    case 0xC2:
+    case 0xC2: // JNZ addr 
         UndefinedInstuction(state);
         break;
-    case 0xC3:
+    case 0xC3: // JMP addr
         UndefinedInstuction(state);
         break;
-    case 0xC4:
+    case 0xC4: // CNZ addr
         UndefinedInstuction(state);
         break;
-    case 0xC5:
+    case 0xC5: // PUSH B
         UndefinedInstuction(state);
         break;
-    case 0xC6:
+    case 0xC6: // ADI D8
         UndefinedInstuction(state);
         break;
-    case 0xC7:
+    case 0xC7: // RST 0
         UndefinedInstuction(state);
         break;
-    case 0xC8:
+    case 0xC8: // RZ
         UndefinedInstuction(state);
         break;
-    case 0xC9:
+    case 0xC9: // RET
         UndefinedInstuction(state);
         break;
-    case 0xCA:
+    case 0xCA: // JZ addr
         UndefinedInstuction(state);
         break;
-    case 0xCB:
-        UndefinedInstuction(state);
+    case 0xCB: // NOP
         break;
-    case 0xCC:
+    case 0xCC: // CZ addr
         UndefinedInstuction(state);
         break;
-    case 0xCD:
+    case 0xCD: // CALL addr
         UndefinedInstuction(state);
         break;
-    case 0xCE:
+    case 0xCE: // ACI D8
         UndefinedInstuction(state);
         break;
-    case 0xCF:
+    case 0xCF: // RST 1
         UndefinedInstuction(state);
         break;
-    case 0xD0:
+    case 0xD0: // RNC
         UndefinedInstuction(state);
         break;
-    case 0xD1:
+    case 0xD1: // POP D
         UndefinedInstuction(state);
         break;
-    case 0xD2:
+    case 0xD2: // JNC addr
         UndefinedInstuction(state);
         break;
-    case 0xD3:
+    case 0xD3: // OUT D8
         UndefinedInstuction(state);
         break;
-    case 0xD4:
+    case 0xD4: // CNC addr
         UndefinedInstuction(state);
         break;
-    case 0xD5:
+    case 0xD5: // PUSH D
         UndefinedInstuction(state);
         break;
-    case 0xD6:
+    case 0xD6: // SUI D8
         UndefinedInstuction(state);
         break;
-    case 0xD7:
+    case 0xD7: // RST 2
         UndefinedInstuction(state);
         break;
-    case 0xD8:
+    case 0xD8: // RC
         UndefinedInstuction(state);
         break;
-    case 0xD9:
-        UndefinedInstuction(state);
+    case 0xD9: // NOP
         break;
-    case 0xDA:
+    case 0xDA: // JC addr
         UndefinedInstuction(state);
         break;
-    case 0xDB:
+    case 0xDB: // IN D8
         UndefinedInstuction(state);
         break;
-    case 0xDC:
+    case 0xDC: // CC addr
         UndefinedInstuction(state);
         break;
-    case 0xDD:
-        UndefinedInstuction(state);
+    case 0xDD: // NOP
         break;
-    case 0xDE:
+    case 0xDE: // SBI D8 
         UndefinedInstuction(state);
         break;
-    case 0xDF:
+    case 0xDF: // RST 3
         UndefinedInstuction(state);
         break;
-    case 0xE0:
+    case 0xE0: // RPO
         UndefinedInstuction(state);
         break;
-    case 0xE1:
+    case 0xE1: // POP H
         UndefinedInstuction(state);
         break;
-    case 0xE2:
+    case 0xE2: // JPO addr
         UndefinedInstuction(state);
         break;
-    case 0xE3:
+    case 0xE3: // XTHL
         UndefinedInstuction(state);
         break;
-    case 0xE4:
+    case 0xE4: // CPO addr
         UndefinedInstuction(state);
         break;
-    case 0xE5:
+    case 0xE5: // PUSH H
         UndefinedInstuction(state);
         break;
-    case 0xE6:
+    case 0xE6: // ANI D8
         UndefinedInstuction(state);
         break;
-    case 0xE7:
+    case 0xE7: // RST 4
         UndefinedInstuction(state);
         break;
-    case 0xE8:
+    case 0xE8: // RPE
         UndefinedInstuction(state);
         break;
-    case 0xE9:
+    case 0xE9: // PCHL
         UndefinedInstuction(state);
         break;
-    case 0xEA:
+    case 0xEA: // JPE addr
         UndefinedInstuction(state);
         break;
-    case 0xEB:
+    case 0xEB: // XCHG
         UndefinedInstuction(state);
         break;
-    case 0xEC:
+    case 0xEC: // CPE addr
         UndefinedInstuction(state);
         break;
-    case 0xED:
-        UndefinedInstuction(state);
+    case 0xED: // NOP
         break;
-    case 0xEE:
+    case 0xEE: // XRI D8
         UndefinedInstuction(state);
         break;
-    case 0xEF:
+    case 0xEF: // RST 5
         UndefinedInstuction(state);
         break;
-    case 0xF0:
+    case 0xF0: // RP
         UndefinedInstuction(state);
         break;
-    case 0xF1:
+    case 0xF1: // POP PSW
         UndefinedInstuction(state);
         break;
-    case 0xF2:
+    case 0xF2: // JP addr
         UndefinedInstuction(state);
         break;
-    case 0xF3:
+    case 0xF3: // DI
         UndefinedInstuction(state);
         break;
-    case 0xF4:
+    case 0xF4: // CP addr
         UndefinedInstuction(state);
         break;
-    case 0xF5:
+    case 0xF5: // PUSH PSW
         UndefinedInstuction(state);
         break;
-    case 0xF6:
+    case 0xF6: // ORI D8
         UndefinedInstuction(state);
         break;
-    case 0xF7:
+    case 0xF7: // RST 6
         UndefinedInstuction(state);
         break;
-    case 0xF8:
+    case 0xF8: // RM
         UndefinedInstuction(state);
         break;
-    case 0xF9:
+    case 0xF9: // SPHL
         UndefinedInstuction(state);
         break;
-    case 0xFA:
+    case 0xFA: // JM addr
         UndefinedInstuction(state);
         break;
-    case 0xFB:
+    case 0xFB: // RI
         UndefinedInstuction(state);
         break;
-    case 0xFC:
+    case 0xFC: // CM addr
         UndefinedInstuction(state);
+        break;
+    case 0xFD: // NOP
         break;
-    case 0xFD:
+    case 0xFE: // CPI D8
         UndefinedInstuction(state);
         break;
-    case 0xFE:
+    case 0xFF: // RST 7
         UndefinedInstuction(state);
         break;
-    case 0xFF:
+    default:
         UndefinedInstuction(state);
         break;
     }

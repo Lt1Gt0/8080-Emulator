@@ -8,7 +8,7 @@ OBJ_DIR = obj
 
 #Compiler and linker things
 CC = gcc
-CCFLAGS = -g#-g -Wall -Wextra
+CCFLAGS = -g -o0#-g -Wall -Wextra
 CCFLAGS +=
 LD = ld
 LDFLAGS = 
@@ -34,7 +34,7 @@ $(BUILD_DIR)/$(OBJ_NAME): $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@ echo ~~~~~ COMPILING $^ ~~~~~
 	@ mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CCFLAGS) -c $^ -o $@
 
 $(OBJ_DIR)/%_asm.o: $(SRC_DIR)/%.asm
 	@ echo ~~~~~ COMPILING $^ ~~~~~
