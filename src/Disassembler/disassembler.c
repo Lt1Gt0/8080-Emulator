@@ -5,7 +5,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
     unsigned char* code = &buffer[pc];
     int opBytes = 1;
     printf("%04x: ", pc);
-    char* opcodeStr;
+    // char* opcodeStr;
 
     switch (*code) {
     case 0x00: 
@@ -143,8 +143,8 @@ int DecodeInstruction(unsigned char* buffer, int pc)
     case 0x29:
         printf("DAD H");
         break;
-    case 0x2A:
-        printf("LHLD "); //////////////
+    case 0x2A: /////////////////
+        printf("LHLD $%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
     case 0x2B:
@@ -167,7 +167,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("NOP");
         break;
     case 0x31: ////////////////////
-        printf("LXI SP, ");
+        printf("LXI SP, #$%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
     case 0x32:
@@ -197,7 +197,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("DAD SP");
         break;
     case 0x3A: ////////////////////
-        printf("LDA ");
+        printf("LDA $%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
     case 0x3B:
@@ -622,7 +622,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("PUSH B");
         break;
     case 0xC6: ///////////////////
-        printf("ADI ");
+        printf("ADI #0x%02x", code[1]);
         opBytes = 2;
         break;
     case 0xC7:
@@ -650,8 +650,8 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         opBytes = 3;
         break;
     case 0xCE: //////////////
-        printf("ACI ");
-        opBytes = 3;
+        printf("ACI #0x%02x", code[1]);
+        opBytes = 2;
         break;
     case 0xCF:
         printf("RST 1");
@@ -667,7 +667,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         opBytes = 3;
         break;
     case 0xD3: /////////////
-        printf("OUT ");
+        printf("OUT #0x%02x", code[1]);
         opBytes = 2;
         break;
     case 0xD4:
@@ -695,7 +695,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         opBytes = 3;
         break;
     case 0xDB: //////////////
-        printf("IN ");
+        printf("IN 0x%02x", code[1]);
         opBytes = 2;
         break;
     case 0xDC:
@@ -706,7 +706,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("NOP");
         break;
     case 0xDE: ///////////////////
-        printf("SBI ");
+        printf("SBI #%02x", code[1]);
         opBytes = 2;
         break;
     case 0xDF:
@@ -787,7 +787,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("PUSH PSW");
         break;
     case 0xF6: /////////////////
-        printf("ORI ");
+        printf("ORI #0x%02x", code[1]);
         opBytes = 2;
         break;
     case 0xF7:
@@ -814,14 +814,15 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         printf("NOP");
         break;
     case 0xFE: /////////////////
-        printf("CPI ");
+        printf("CPI #0x%02x", code[1]);
         opBytes = 2;
         break;
     case 0xFF:
         printf("RST 7");
         break;
     default:
-        opcodeStr = UNDEFINED_OP_CODE;
+        printf(UNDEFINED_OP_CODE);
+        // opcodeStr = UNDEFINED_OP_CODE;
         break;
     }
 
@@ -856,7 +857,7 @@ unsigned char* ReadFileToHexBuffer(FILE* fp, size_t* filesize)
     rewind(fp);
 
     buffer = malloc(*filesize);
-    fread(buffer, filesize, 1, fp);
+    fread(buffer, *filesize, 1, fp);
     fclose(fp);
 
     return buffer;
@@ -878,8 +879,6 @@ int main(int argc, char** argv)
         return -1;
     }
     
-
-
     size_t filesize;
     unsigned char* buffer = ReadFileToHexBuffer(fp, &filesize);
     // PrintHexBuffer(buffer, filesize);
