@@ -117,7 +117,7 @@ int DecodeInstruction(unsigned char* buffer, int pc)
         opBytes = 3;
         break;
     case 0x22:
-        printf("SHDL $%02x%02x", code[2], code[1]);
+        printf("SHLD $%02x%02x", code[2], code[1]);
         opBytes = 3;
         break;
     case 0x23:

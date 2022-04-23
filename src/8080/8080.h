@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define MSB_UINT8   0x80
+#define MSB_UINT16  0x8000 
+
 typedef struct ConditionCodes {
     uint8_t z       : 1;
     uint8_t s       : 1;
@@ -34,5 +37,7 @@ State8080* Init8080();
 
 void UndefinedInstuction(State8080* state);
 int Emulate8080p(State8080* state);
+
+ConditionCodes UpdateFlags(uint16_t ans);
 
 #endif // __8080_H

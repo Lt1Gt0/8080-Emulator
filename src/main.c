@@ -21,12 +21,11 @@ int main(int argc, char** argv)
     unsigned char* buffer = ReadFileToHexBuffer(fp, &filesize);
     // PrintHexBuffer(buffer, filesize);
     
-    ConditionCodes codes = {0};
     State8080* state = Init8080();
 
     size_t progCount = 0;
     while (progCount < filesize) {
-        // Emulate8080p(&state);
+        // Emulate8080p(state);
         progCount += DecodeInstruction(buffer, progCount);
     }
 
