@@ -35,9 +35,9 @@ typedef struct State8080 {
 
 State8080* Init8080();
 
-void UndefinedInstuction(State8080* state);
+void UndefinedInstruction(State8080* state);
 int Emulate8080p(State8080* state);
 
-ConditionCodes UpdateFlags(uint16_t ans);
+void UpdateFlags(uint16_t ans, ConditionCodes* cc);
 
 #endif // __8080_H
