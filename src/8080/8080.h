@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "instuctions.h"
+
 #define MSB_UINT8   0x80
 #define MSB_UINT16  0x8000 
 

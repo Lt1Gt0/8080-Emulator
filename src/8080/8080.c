@@ -21,13 +21,10 @@ int Emulate8080p(State8080* state)
     case 0x00: // NOP
         break;
     case 0x01: // LXI B, D16
-        state->c = opcode[1];
-        state->b = opcode[2];
-        state->pc += 2;
+        lxi(state, state->c, state->b, opcode[1], opcode[2]);
         break;
     case 0x02: //STAX B
-        offset = (state->b << 8) | (state->c);
-        state->memory[offset] = state->a;
+        stax(state, state->b, state->c);
         break;
     case 0x03: // INX B
         ans = (uint16_t)((state->b << 8) | (state->c)) + (uint16_t)1;
@@ -45,8 +42,7 @@ int Emulate8080p(State8080* state)
         state->b = ans & 0xFF;
         break;
     case 0x06: // MVI B, D8
-        state->b = opcode[1];
-        state->pc += 1;
+        mvi(state, state->b, opcode[1]);
         break;
     case 0x07: // RLC
         UndefinedInstruction(state);
@@ -60,8 +56,7 @@ int Emulate8080p(State8080* state)
         state->cc.cy = (ans > 0xFF);
         break;
     case 0x0A: // LDAX B
-        offset = (state->b << 8) | (state->c);
-        state->a = state->memory[offset];
+        ldax(state, state->b, state->c);
         break;
     case 0x0B: // DCX B
         ans = (uint16_t)(state->b << 8) | (state->c) + (~(uint16_t)1 + 1);
@@ -79,8 +74,7 @@ int Emulate8080p(State8080* state)
         state->c = ans & 0xFF;
         break;
     case 0x0E: // MVI C, D8
-        state->c = opcode[1];
-        state->pc += 1;
+        mvi(state, state->c, opcode[1]);
         break;
     case 0x0F: // RRC
         UndefinedInstruction(state);
@@ -88,13 +82,10 @@ int Emulate8080p(State8080* state)
     case 0x10: // NOP
         break;
     case 0x11: // LXI D, D16
-        state->e = opcode[1];
-        state->d = opcode[2];
-        state->pc += 2;
+        lxi(state, state->e, state->d, opcode[1], opcode[2]);
         break;
     case 0x12: // STAX D
-        offset = (state->d << 8) | (state->e);    
-        state->memory[offset] = state->a;
+        stax(state, state->d, state->e);
         break;
     case 0x13: // INX D
         ans = (uint16_t)((state->d << 8) | (state->e)) + (uint16_t)1;
@@ -112,8 +103,7 @@ int Emulate8080p(State8080* state)
         state->d = ans & 0xFF;
         break;
     case 0x16: // MVI D, D8
-        state->d = opcode[1];
-        state->pc += 1;
+        mvi(state, state->d, opcode[1]);
         break;
     case 0x17: // RAL
         UndefinedInstruction(state);
@@ -127,8 +117,7 @@ int Emulate8080p(State8080* state)
         state->cc.cy = (ans > 0xFF);
         break;
     case 0x1A: // LDAX D
-        offset = (state->d << 8) | (state->e);
-        state->a = state->memory[offset];
+        ldax(state, state->d, state->e);
         break;
     case 0x1B: // DCX D
         ans = (uint16_t)(state->d << 8) | (state->e) + (~(uint16_t)1 + 1);
@@ -146,8 +135,7 @@ int Emulate8080p(State8080* state)
         state->e = ans & 0xFF;
         break;
     case 0x1E: // MVI E, D8
-        state->e = opcode[1];
-        state->pc += 1;
+        mvi(state, state->e, opcode[1]);
         break;
     case 0x1F: // RAR
         UndefinedInstruction(state);
@@ -155,9 +143,7 @@ int Emulate8080p(State8080* state)
     case 0x20: // NOP
         break;
     case 0x21: // LXI H, D16
-        state->l = opcode[1];
-        state->h = opcode[2];
-        state->pc += 2;
+        lxi(state, state->h, state->l, opcode[1], opcode[2]);
         break;
     case 0x22: // SHLD adr
         offset = (opcode[2] << 8) | (opcode[1]);
@@ -181,8 +167,7 @@ int Emulate8080p(State8080* state)
         state->h = ans & 0xFF;
         break;
     case 0x26: // MVI H, D8
-        state->h = opcode[1];
-        state->pc += 1;
+        mvi(state, state->h, opcode[1]);
         break;
     case 0x27: // DAA
         UndefinedInstruction(state);
@@ -217,8 +202,7 @@ int Emulate8080p(State8080* state)
         state->l = ans & 0xFF;
         break;
     case 0x2E: // MVI L, D8
-        state->l = opcode[1];
-        state->pc += 1;
+        mvi(state, state->l, opcode[1]);
         break;
     case 0x2F: // CMA
         state->a = ~(state->a); //I think this is right;
@@ -237,6 +221,7 @@ int Emulate8080p(State8080* state)
         state->sp += 1; // Double check to make sure it is correct
         break;
     case 0x34: // INR M
+        // Flags: Z, S, P, AC
         ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)1;
         UpdateFlags(ans, &state->cc);
         state->h = ans >> 8; /* REDFLAG DONT KNOW IF THIS WORKS */
@@ -282,8 +267,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;
         break;
     case 0x3E: // MVI A, D8
-        state->a = opcode[1];
-        state->pc += 1;
+        mvi(state, state->a, opcode[1]);
         break;
     case 0x3F: // CMC
         state->cc.cy = ~(state->cc.cy);
@@ -292,199 +276,185 @@ int Emulate8080p(State8080* state)
         // Set register to itself so just break
         break;
     case 0x41: // MOV B, C
-        state->b = state->c;
+        movReg(state->b, state->c);
         break;
     case 0x42: // MOV B, D
-        state->b = state->d;
+        movReg(state->b, state->d);
         break;
     case 0x43: // MOV B, E
-        state->b = state->e;
+        movReg(state->b, state->e);
         break;
     case 0x44: // MOV B, H
-        state->b = state->h;
+        movReg(state->b, state->h);
         break;
     case 0x45: // MOV B, L
-        state->b = state->l;
+        movReg(state->b, state->l);
         break;
     case 0x46: // MOV B, M
-        offset = (state->h << 8) | (state->l);
-        state->b = state->memory[offset];
+        movFromMem(state, state->b);
         break;
     case 0x47: // MOV B, A
-        state->b = state->a;
+        movReg(state->b, state->a);
         break;
     case 0x48: // MOV C, B
-        state->c = state->b;
+        movReg(state->c, state->b);
         break;
     case 0x49: // MOV C, C
         // Set register to itself so just break
         break;
     case 0x4A: // MOV C, D
-        state->c = state->d;
+        movReg(state->c, state->d);
         break;
     case 0x4B: // MOV C, E
-        state->c = state->e;
+        movReg(state->c, state->e);
         break;
     case 0x4C: // MOV C, H
-        state->c = state->h;
+        movReg(state->c, state->h);
         break;
     case 0x4D: // MOV C, L
-        state->c = state->l;
+        movReg(state->c, state->l);
         break;
     case 0x4E: // MOV C, M
-        offset = (state->h << 8) | (state->l);
-        state->c = state->memory[offset];
+        movFromMem(state, state->c);
         break;
     case 0x4F: // MOV C, A
-        state->c = state->a;
+        movReg(state->c, state->a);
         break;
     case 0x50: // MOV D, B
-        state->d = state->b;
+        movReg(state->d, state->b);
         break;
     case 0x51: // MOV D, C
-        state->d = state->c;
+        movReg(state->d, state->c);
         break;
     case 0x52: // MOV D, D
         // Set register to itself so just break
         break;
     case 0x53: // MOV D, E
-        state->d = state->e;
+        movReg(state->d, state->e);
         break;
     case 0x54: // MOV D, H
-        state->d = state->h;
+        movReg(state->d, state->h);
         break;
     case 0x55: // MOV D, L
-        state->d = state->l;
+        movReg(state->d, state->l);
         break;
     case 0x56: // MOV D, M
-        offset = (state->h << 8) | (state->l);
-        state->d = state->memory[offset];
+        movFromMem(state, state->d);
         break;
     case 0x57: // MOV D, A
-        state->d = state->a;
+        movReg(state->d, state->a);
         break;
     case 0x58: // MOV E, B
-        state->e = state->b;
+        movReg(state->e, state->b);
         break;
     case 0x59: // MOV E, C
-        state->e = state->c;
+        movReg(state->e, state->c);
         break;
     case 0x5A: // MOV E, D
-        state->e = state->d;
+        movReg(state->e, state->d);
         break;
     case 0x5B: // MOV E, E
         // Set register to itself so just break
         break;
     case 0x5C: // MOV E, H
-        state->e = state->h;
+        movReg(state->e, state->h);
         break;
     case 0x5D: // MOV E, L
-        state->e = state->l;
+        movReg(state->e, state->l);
         break;
     case 0x5E: // MOV E, M
-        offset = (state->h << 8) | (state->l);
-        state->e = state->memory[offset];
+        movFromMem(state, state->e);
         break;
     case 0x5F: // MOV E, A
-        state->e = state->a;
+        movReg(state->e, state->a);
         break;
     case 0x60: // MOV H, B
-        state->h = state->b;
-        break;
+        movReg(state->h, state->b);
     case 0x61: // MOV H, C 
-        state->h = state->c;
+        movReg(state->h, state->c);
         break;
     case 0x62: // MOV H, D
-        state->h = state->d;
+        movReg(state->h, state->d);
         break;
     case 0x63: // MOV H, E
-        state->h = state->e;
+        movReg(state->h, state->e);
         break;
     case 0x64: // MOV H, H
         // Set register to itself so just break
         break;
     case 0x65: // MOV H, L
-        state->h = state->l;
+        movReg(state->h, state->l);
         break;
     case 0x66: // MOV H, M
-        offset = (state->h << 8) | (state->l);
-        state->h = state->memory[offset];
+        movFromMem(state, state->h);
         break;
     case 0x67: // MOV H, A
-        state->h = state->a;
+        movReg(state->h, state->a);
         break;
     case 0x68: // MOV L, B
-        state->l = state->b;
+        movReg(state->l, state->b);
         break;
     case 0x69: // MOV L, C
-        state->l = state->c;
+        movReg(state->l, state->c);
         break;
     case 0x6A: // MOV L, D
-        state->l = state->d;
+        movReg(state->l, state->d);
         break;
     case 0x6B: // MOV L, E
-        state->l = state->e;
+        movReg(state->l, state->e);
         break;
     case 0x6C: // MOV L, H
-        state->l = state->h;
+        movReg(state->l, state->h);
         break;
     case 0x6D: // MOV L, L
         // Set register to itself so just break
         break;
     case 0x6E: // MOV L, M
-        offset = (state->h << 8) | (state->l);
-        state->l = state->memory[offset];
+        movFromMem(state, state->l);
         break;
     case 0x6F: // MOV L, A
-        state->l = state->a;
+        movReg(state->l, state->a);
         break;
     case 0x70: // MOV M, B
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->b;
+        movToMem(state, state->b);
         break;
     case 0x71: // MOV M, C
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->c;
+        movToMem(state, state->c);
         break;
     case 0x72: // MOV M, D
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->d;
+        movToMem(state, state->d);
         break;
     case 0x73: // MOV M, E
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->e;
+        movToMem(state, state->e);
         break;
     case 0x74: // MOV M, H
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->h;
+        movToMem(state, state->h);
         break;
     case 0x75: // MOV M, L
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->l;
+        movToMem(state, state->l);
         break;
     case 0x76: // HLT
         break;
     case 0x77: // MOV M, A
-        offset = (state->h << 8) | (state->l);
-        state->memory[offset] = state->a;
+        movToMem(state, state->a);
         break;
     case 0x78: // MOV A, B
-        state->a = state->b;
+        movReg(state->a, state->b);
         break;
     case 0x79: // MOV A, C
-        state->a = state->c;
+        movReg(state->a, state->c);
         break;
     case 0x7A: // MOV A, D
-        state->a = state->d;
+        movReg(state->a, state->d);
         break;
     case 0x7B: // MOV A, E
-        state->a = state->e;
+        movReg(state->a, state->e);
         break;
     case 0x7C: // MOV A, H
-        state->a = state->h;
+        movReg(state->a, state->h);
         break;
     case 0x7D: // MOV A, L
-        state->a = state->l;
+        movReg(state->a, state->l);
         break;
     case 0x7E: // MOV A, M
         offset = (state->h << 8) | (state->l);
