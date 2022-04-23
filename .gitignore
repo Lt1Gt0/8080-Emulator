@@ -1,2 +1,4 @@
 .vs_code/*
 stderr_out
+obj/*
+bin/*
