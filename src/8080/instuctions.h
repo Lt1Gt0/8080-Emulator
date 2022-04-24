@@ -3,6 +3,7 @@
 #define __INSTRUCTIONS_H
 
 #include <stdint.h>
+#include <stdio.h>
 #include "structs.h"
 
 /* DATA TRANSFER */
@@ -119,6 +120,7 @@ M   -> minus (S = 1)        (111)
 */
 
 void UpdateAllFlags(State8080* state, uint16_t ans);
-int CheckParity(uint8_t check);
+int CheckParity(int check, int size);
 
+void PrintProcState(State8080* state);
 #endif // __INSTRUCTIONS_H

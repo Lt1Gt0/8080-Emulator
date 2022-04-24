@@ -15,9 +15,12 @@ void UndefinedInstruction(State8080* state)
 
 int Emulate8080p(State8080* state)
 {
+    DecodeInstruction(state->memory, state->pc);
     unsigned char* opcode = &state->memory[state->pc];
-    uint16_t ans, offset;
-    uint8_t tmp;
+    uint16_t ans, offset, ret;
+    uint8_t psw, tmp;
+    
+    state->pc += 1;
     switch (*opcode) {
     case 0x00: // NOP
         break;
@@ -63,7 +66,9 @@ int Emulate8080p(State8080* state)
         mvi(state, &state->c, opcode[1]);
         break;
     case 0x0F: // RRC
-        UndefinedInstruction(state);
+        tmp = state->a;
+        state->a = ((tmp & 1) << 7) | (tmp >> 1);
+        state->cc.cy = ((tmp & 1) == 1);
         break;
     case 0x10: // NOP
         break;
@@ -75,7 +80,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0x13: // INX D
         ans = (uint16_t)((state->d << 8) | (state->e)) + (uint16_t)1;
-        state->d = (uint8_t)ans >> 8; // Might not have to typecast
+        state->d = (ans >> 8) & 0xFF;
         state->e = ans & 0xFF;
         break;
     case 0x14: // INR D
@@ -111,7 +116,9 @@ int Emulate8080p(State8080* state)
         mvi(state, &state->e, opcode[1]);
         break;
     case 0x1F: // RAR
-        UndefinedInstruction(state);
+        tmp = state->a;
+        state->a = (state->cc.cy << 7) | (tmp >> 1);
+        state->cc.cy = ((tmp & 1) == 1);
         break;
     case 0x20: // NOP
         break;
@@ -126,7 +133,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0x23: // INX H
         ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)1;
-        state->h = (uint8_t)ans >> 8; // Might not have to typecast
+        state->h = (ans >> 8) & 0xFF;
         state->l = ans & 0xFF;
         break;
     case 0x24: // INR H
@@ -186,7 +193,7 @@ int Emulate8080p(State8080* state)
         tmp = state->cc.cy;
         UpdateAllFlags(state, ans);
         state->cc.cy = tmp; // retore cy
-        state->h = ans >> 8; /* REDFLAG DONT KNOW IF THIS WORKS */
+        state->h = (ans >> 8) & 0xFF;
         state->l = ans & 0xFF;
         break;
     case 0x35: // DCR M
@@ -197,7 +204,7 @@ int Emulate8080p(State8080* state)
         tmp = state->cc.cy;
         UpdateAllFlags(state, ans);
         state->cc.cy = tmp; // retore cy
-        state->h = ans >> 8;
+        state->h = (ans >> 8) & 0xFF;
         state->l = ans & 0xFF;
         break;
     case 0x36: // MVI M, D8
@@ -641,19 +648,22 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xC1: // POP B
-        UndefinedInstruction(state);
+        pop(state, &state->b, &state->c);
         break;
     case 0xC2: // JNZ adr 
-        UndefinedInstruction(state);
+        if (state->cc.z == 0) 
+            state->pc = (opcode[2] << 8) | (opcode[1]);
+        else 
+            state->pc += 2;
         break;
     case 0xC3: // JMP adr
-        state->pc = (uint16_t)((opcode[2] << 8) | (opcode[1]));
+        state->pc = (opcode[2] << 8) | (opcode[1]);
         break;
     case 0xC4: // CNZ adr
         UndefinedInstruction(state);
         break;
     case 0xC5: // PUSH B
-        UndefinedInstruction(state);
+        push(state, &state->b, &state->c);
         break;
     case 0xC6: // ADI D8
         ans = (uint16_t) state->a + (uint16_t) opcode[1];
@@ -667,7 +677,8 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xC9: // RET
-        UndefinedInstruction(state);
+        state->pc = state->memory[state->sp] | (state->memory[state->sp + 1] << 8);
+        state->pc += 2;
         break;
     case 0xCA: // JZ adr
         UndefinedInstruction(state);
@@ -678,7 +689,11 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xCD: // CALL adr
-        UndefinedInstruction(state);
+        ret = state->pc + 2;
+        state->memory[state->sp - 1] = (ret >> 8) & 0xFF;
+        state->memory[state->sp - 2] = (ret & 0xFF);
+        state->sp -= 2;
+        state->sp = (opcode[2] << 8) | (opcode[1]);
         break;
     case 0xCE: // ACI D8
         ans = (uint16_t) state->a + (uint16_t) opcode[1] + (uint16_t) state->cc.cy;
@@ -692,7 +707,7 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xD1: // POP D
-        UndefinedInstruction(state);
+        pop(state, &state->d, &state->e);
         break;
     case 0xD2: // JNC adr
         UndefinedInstruction(state);
@@ -704,7 +719,7 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xD5: // PUSH D
-        UndefinedInstruction(state);
+        push(state, &state->d, &state->e);
         break;
     case 0xD6: // SUI D8
         ans = (uint16_t) state->a - (uint16_t) opcode[1]; // Make sure this is correct 
@@ -742,7 +757,7 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xE1: // POP H
-        UndefinedInstruction(state);
+        pop(state, &state->h, &state->l);
         break;
     case 0xE2: // JPO adr
         UndefinedInstruction(state);
@@ -754,12 +769,14 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xE5: // PUSH H
-        UndefinedInstruction(state);
+        push(state, &state->h, &state->l);
         break;
     case 0xE6: // ANI D8
-        ans = (uint16_t) state->a & (uint16_t) opcode[1];
-        UpdateAllFlags(state, ans);
-        state->a = ans & 0xFF;
+        ans = state->a & opcode[1];
+        UpdateAllFlags(state, (uint16_t)ans);
+        state->cc.p = CheckParity(ans, 8);
+        state->cc.cy = 0;
+        state->a = ans;
         break;
     case 0xE7: // RST 4
         UndefinedInstruction(state);
@@ -799,7 +816,14 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xF1: // POP PSW
-        UndefinedInstruction(state);
+        state->a = state->memory[state->sp + 1];
+        psw = state->memory[state->sp];
+        state->cc.z = ((psw & 0x01) == 0x01);
+        state->cc.s = ((psw & 0x02) == 0x02);
+        state->cc.p = ((psw & 0x04) == 0x04);
+        state->cc.cy = ((psw & 0x05) == 0x05);
+        state->cc.ac = ((psw & 0x10) == 0x10);
+        state->sp += 2;
         break;
     case 0xF2: // JP adr
         UndefinedInstruction(state);
@@ -811,7 +835,14 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xF5: // PUSH PSW
-        UndefinedInstruction(state);
+        state->memory[state->sp - 1] = state->a;
+        psw=(state->cc.z
+            |state->cc.s << 1
+            |state->cc.p << 2
+            |state->cc.cy << 3
+            |state->cc.ac << 4);
+        state->memory[state->sp - 2] = psw;
+        state->sp -= 2;
         break;
     case 0xF6: // ORI D8
         ans = (uint16_t) state->a | (uint16_t) opcode[1];
@@ -839,8 +870,11 @@ int Emulate8080p(State8080* state)
     case 0xFD: // NOP
         break;
     case 0xFE: // CPI D8
-        ans = (uint16_t) state->a - (uint16_t) opcode[1];
+        tmp = state->a - opcode[1];
         UpdateAllFlags(state, ans);
+        state->cc.p = CheckParity(tmp, 8);
+        state->cc.cy = (state->a < opcode[1]);
+        state->pc += 1;
         break;
     case 0xFF: // RST 7
         UndefinedInstruction(state);
@@ -849,5 +883,6 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     }
-    state->pc += 1;
+
+    PrintProcState(state);
 }

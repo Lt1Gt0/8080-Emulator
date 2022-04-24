@@ -22,11 +22,12 @@ int main(int argc, char** argv)
     // PrintHexBuffer(buffer, filesize);
     
     State8080* state = Init8080();
+    state->memory = buffer;
 
     size_t progCount = 0;
     while (progCount < filesize) {
-        // Emulate8080p(state);
-        progCount += DecodeInstruction(buffer, progCount);
+        Emulate8080p(state);
+        // progCount += DecodeInstruction(buffer, progCount);
     }
 
     return 0;

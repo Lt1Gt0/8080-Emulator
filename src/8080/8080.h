@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "structs.h"
 #include "instuctions.h"
+#include "Disassembler/disassembler.h"
 
 State8080* Init8080();
 

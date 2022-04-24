@@ -190,12 +190,16 @@ void cmpReg(State8080* state, uint8_t* reg)
 
 void push(State8080* state, uint8_t* rph, uint8_t* rpl)
 {
-
+    state->memory[state->sp - 1] = *rph;
+    state->memory[state->sp - 2] = *rpl;
+    state->sp -= 2;
 }
 
 void pop(State8080* state, uint8_t* rph, uint8_t* rpl)
 {
-
+    *rpl = state->memory[state->sp];
+    *rph = state->memory[state->sp + 1];
+    state->sp += 2;
 }
 
 /*
@@ -226,17 +230,26 @@ void UpdateAllFlags(State8080* state, uint16_t ans)
     state->cc.z = ((ans & 0xFF) == 0);
     state->cc.s = ((ans & MSB_UINT8) != 0);
     state->cc.cy = (ans > 0xFF);
-    state->cc.p = CheckParity(ans & 0xFF);
+    state->cc.p = CheckParity(ans, 16);
     // state->cc.ac
 }
 
-int CheckParity(uint8_t check)
+int CheckParity(int check, int size)
 {
+    check = (check & (1 << size) - 1);
     unsigned int totalBits = 0;
-    while (check) {
+    for (int i = 0; i < size; i++) {
         if (check & 1)
             totalBits++;
         check >>= 1;
     }
-    return totalBits % 2 == 0;
+    return ((totalBits & 1) == 0);
+}
+
+void PrintProcState(State8080* state)
+{
+    printf("\tC=%d, P=%d, Z=%d\n", state->cc.cy, state->cc.p, state->cc.z);
+    printf("\tA $%02x | B $%02x | C $%02x | D $%02x | E $%02x | H $%02x | L $%02x | SP $%04x\n\n",
+    state->a, state->b, state->c, state->d, state->e,
+    state->h, state->l, state->sp);
 }
