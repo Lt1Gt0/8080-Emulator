@@ -32,14 +32,10 @@ int Emulate8080p(State8080* state)
         state->c = ans && 0xFF;
         break;
     case 0x04: // INR B
-        ans = (uint16_t) state->b + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->b = ans & 0xFF;
+        inrReg(state, state->b);
         break;
     case 0x05: // DCR B
-        ans = (uint16_t) state->b + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->b = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x06: // MVI B, D8
         mvi(state, state->b, opcode[1]);
@@ -50,28 +46,19 @@ int Emulate8080p(State8080* state)
     case 0x08: // NOP
         break;
     case 0x09: // DAD B
-        ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)((state->b << 8) | (state->c));
-        state->h = ans >> 8;
-        state->l = ans & 0xFF;
-        state->cc.cy = (ans > 0xFF);
+        dad(state, state->b, state->c);
         break;
     case 0x0A: // LDAX B
         ldax(state, state->b, state->c);
         break;
     case 0x0B: // DCX B
-        ans = (uint16_t)(state->b << 8) | (state->c) + (~(uint16_t)1 + 1);
-        state->b = ans >> 8;
-        state->c = ans & 0xFF;
+        dcx(state, state->b, state->c);
         break;
     case 0x0C: // INR C
-        ans = (uint16_t) state->c + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->c = ans & 0xFF;
+        inrReg(state, state->c);
         break;
     case 0x0D: // DCR C
-        ans = (uint16_t) state->c + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->c = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x0E: // MVI C, D8
         mvi(state, state->c, opcode[1]);
@@ -93,14 +80,10 @@ int Emulate8080p(State8080* state)
         state->e = ans & 0xFF;
         break;
     case 0x14: // INR D
-        ans = (uint16_t) state->d + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->d = ans & 0xFF;
+        inrReg(state, state->d);
         break;
     case 0x15: // DCR D
-        ans = (uint16_t) state->d + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->d = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x16: // MVI D, D8
         mvi(state, state->d, opcode[1]);
@@ -111,28 +94,19 @@ int Emulate8080p(State8080* state)
     case 0x18: // NOP
         break;
     case 0x19: // DAD D
-        ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)((state->d << 8) | (state->e));
-        state->h = ans >> 8;
-        state->l = ans & 0xFF;
-        state->cc.cy = (ans > 0xFF);
+        dad(state, state->b, state->c);
         break;
     case 0x1A: // LDAX D
         ldax(state, state->d, state->e);
         break;
     case 0x1B: // DCX D
-        ans = (uint16_t)(state->d << 8) | (state->e) + (~(uint16_t)1 + 1);
-        state->d = ans >> 8;
-        state->e = ans & 0xFF;
+        dcx(state, state->d, state->e);
         break;
     case 0x1C: // INR E
-        ans = (uint16_t) state->e + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->e = ans & 0xFF;
+        inrReg(state, state->e);
         break;
     case 0x1D: // DCR E
-        ans = (uint16_t) state->e + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->e = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x1E: // MVI E, D8
         mvi(state, state->e, opcode[1]);
@@ -157,14 +131,10 @@ int Emulate8080p(State8080* state)
         state->l = ans & 0xFF;
         break;
     case 0x24: // INR H
-        ans = (uint16_t) state->h + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->h = ans & 0xFF;
+        inrReg(state, state->h);
         break;
     case 0x25: // DCR H
-        ans = (uint16_t) state->h + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->h = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x26: // MVI H, D8
         mvi(state, state->h, opcode[1]);
@@ -175,10 +145,7 @@ int Emulate8080p(State8080* state)
     case 0x28: // NOP
         break;
     case 0x29: // DAD H
-        ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)((state->h << 8) | (state->l));
-        state->h = ans >> 8;
-        state->l = ans & 0xFF;
-        state->cc.cy = (ans > 0xFF);
+        dad(state, state->b, state->c);
         break;
     case 0x2A: // LHLD adr
         offset = (opcode[2] << 8) | (opcode[1]);
@@ -187,19 +154,16 @@ int Emulate8080p(State8080* state)
         state->pc += 2;
         break;
     case 0x2B: // DCX H
+        dcx(state, state->h, state->l);
         ans = (uint16_t)(state->h << 8) | (state->l) + (~(uint16_t)1 + 1);
         state->h = ans >> 8;
         state->l = ans & 0xFF;
         break;
     case 0x2C: // INR L
-        ans = (uint16_t) state->l + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->l = ans & 0xFF;
+        inrReg(state, state->l);
         break;
     case 0x2D: // DCR L
-        ans = (uint16_t) state->l + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->l = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x2E: // MVI L, D8
         mvi(state, state->l, opcode[1]);
@@ -223,15 +187,20 @@ int Emulate8080p(State8080* state)
     case 0x34: // INR M
         // Flags: Z, S, P, AC
         ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
+        uint8_t tmp = state->cc.cy;
+        UpdateAllFlags(state, ans);
+        state->cc.cy = tmp; // retore cy
         state->h = ans >> 8; /* REDFLAG DONT KNOW IF THIS WORKS */
         state->l = ans & 0xFF;
         break;
     case 0x35: // DCR M
+        // Flags: Z, S, P, AC
         // Not sure if any of this is correct
         offset = ((uint16_t)(state->h << 8) | (state->l));
         ans = state->memory[offset] + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
+        uint8_t tmp = state->cc.cy;
+        UpdateAllFlags(state, ans);
+        state->cc.cy = tmp; // retore cy
         state->h = ans >> 8;
         state->l = ans & 0xFF;
         break;
@@ -254,17 +223,13 @@ int Emulate8080p(State8080* state)
         state->pc += 2;
         break;
     case 0x3B: // DCX SP
-        state->sp = state->sp + (~(uint16_t)1 + 1);
+        state->sp = state->sp - 1;
         break;
     case 0x3C: // INR A
-        ans = (uint16_t) state->a + (uint16_t)1;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        inrReg(state, state->a);
         break;
     case 0x3D: // DCR A
-        ans = (uint16_t) state->a + (~(uint16_t)1 + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        dcrReg(state, state->b);
         break;
     case 0x3E: // MVI A, D8
         mvi(state, state->a, opcode[1]);
@@ -464,326 +429,217 @@ int Emulate8080p(State8080* state)
         // Set register to itself so just break
         break;
     case 0x80: // ADD B
-        ans = (uint16_t) state->a + (uint16_t) state->b;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans && 0xFF;
+        addReg(state, state->b);
         break;
     case 0x81: // ADD C 
-        ans = (uint16_t) state->a + (uint16_t) state->c;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans && 0xFF;
+        addReg(state, state->c);
         break;
     case 0x82: // ADD D
-        ans = (uint16_t) state->a + (uint16_t) state->d;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans && 0xFF;
+        addReg(state, state->d);
         break;
     case 0x83: // ADD E
-        ans = (uint16_t) state->a + (uint16_t) state->e;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans && 0xFF;
+        addReg(state, state->e);
         break;
     case 0x84: // ADD H
-        ans = (uint16_t) state->a + (uint16_t) state->h;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans && 0xFF;
+        addReg(state, state->h);
         break;
     case 0x85: // ADD L
-        ans = (uint16_t) state->a + (uint16_t) state->l;
-        UpdateFlags(ans, &state->cc); 
-        state->a = ans && 0xFF;
+        addReg(state, state->l);
         break;
     case 0x86: // ADD M
         offset = (uint16_t)((state->h << 8) | (state->l));
         ans = (uint16_t) state->a + state->memory[offset];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans && 0xFF;
         break;
     case 0x87: // ADD A
-        ans = (uint16_t) state->a + (uint16_t) state->a;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans && 0xFF;
+        addReg(state, state->a);
         break;
-    case 0x88: // ADC B
-        ans = (uint16_t) state->a + (uint16_t) state->b + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x88: // adcReg B
+        adcReg(state, state->b);
         break;
-    case 0x89: // ADC C
-        ans = (uint16_t) state->a + (uint16_t) state->c + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x89: // adcReg C
+        adcReg(state, state->c);
         break;
-    case 0x8A: // ADC D
-        ans = (uint16_t) state->a + (uint16_t) state->d + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x8A: // adcReg D
+        adcReg(state, state->d);
         break;
-    case 0x8B: // ADC E
-        ans = (uint16_t) state->a + (uint16_t) state->e + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x8B: // adcReg E
+        adcReg(state, state->e);
         break;
-    case 0x8C: // ADC H
-        ans = (uint16_t) state->a + (uint16_t) state->h + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x8C: // adcReg H
+        adcReg(state, state->h);
         break;
-    case 0x8D: // ADC L
-        ans = (uint16_t) state->a + (uint16_t) state->l + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x8D: // adcReg L
+        adcReg(state, state->l);
         break;
-    case 0x8E: // ADC M
+    case 0x8E: // adcReg M
         offset = (uint16_t)((state->h << 8) | (state->l));
         ans = (uint16_t) state->a + state->memory[offset];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
-    case 0x8F: // ADC A
-        ans = (uint16_t) state->a + (uint16_t) state->a + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+    case 0x8F: // adcReg A
+        adcReg(state, state->a);
         break;
     case 0x90: // SUB B
-        ans = (uint16_t) state->a + (~(uint16_t) state->b + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->b);
         break;
     case 0x91: // SUB C
-        ans = (uint16_t) state->a + (~(uint16_t) state->c + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->c);
         break;
     case 0x92: // SUB D
-        ans = (uint16_t) state->a + (~(uint16_t) state->d + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->d);
+        break;
     case 0x93: // SUB E
-        ans = (uint16_t) state->a + (~(uint16_t) state->e + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->e);
+        break;
     case 0x94: // SUB H
-        ans = (uint16_t) state->a + (~(uint16_t) state->h + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->h);
         break;
     case 0x95: // SUB L
-        ans = (uint16_t) state->a + (~(uint16_t) state->l + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->l);
         break;
     case 0x96: // SUB M
-        ans = (uint16_t) state->a + (~((uint16_t)(state->h << 8) | (state->l)) + 1);
-        UpdateFlags(ans, &state->cc);
+        ans = (uint16_t) state->a - ((uint16_t)(state->h << 8) | (state->l));
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0x97: // SUB A
-        ans = (uint16_t) state->a + (~(uint16_t) state->a + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        subReg(state, state->a);
         break;
     case 0x98: // SBB B
-        ans = (uint16_t) state->a + (~(uint16_t) state->b + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        sbbReg(state, state->b);
         break;
     case 0x99: // SBB C
-        ans = (uint16_t) state->a + (~(uint16_t) state->c + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
-        UndefinedInstruction(state);
+        sbbReg(state, state->c);
         break;
     case 0x9A: // SBB D
-        ans = (uint16_t) state->a + (~(uint16_t) state->d + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
-        UndefinedInstruction(state);
+        sbbReg(state, state->d);
         break;
     case 0x9B: // SBB E
-        ans = (uint16_t) state->a + (~(uint16_t) state->e + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
-        UndefinedInstruction(state);
+        sbbReg(state, state->e);
         break;
     case 0x9C: // SBB H
-        ans = (uint16_t) state->a + (~(uint16_t) state->h + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
-        UndefinedInstruction(state);
+        sbbReg(state, state->h);
         break;
     case 0x9D: // SBB L
-        ans = (uint16_t) state->a + (~(uint16_t) state->l + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
-        UndefinedInstruction(state);
+        sbbReg(state, state->l);
         break;
     case 0x9E: // SBB M
-        ans = (uint16_t) state->a + (~((uint16_t)(state->h << 8) | (state->l)) + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
+        ans = (uint16_t) state->a - ((uint16_t)(state->h << 8) | (state->l)) - (uint16_t)(state->cc.cy + 1);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
-        UndefinedInstruction(state);
         break;
     case 0x9F: // SBB A
-        ans = (uint16_t) state->a + (~(uint16_t) state->a + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
-        UndefinedInstruction(state);
+        sbbReg(state, state->a);
         break;
     case 0xA0: // ANA B
-        ans = (uint16_t) state->a & (uint16_t) state->b;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->b);
         break;
     case 0xA1: // ANA C
-        ans = (uint16_t) state->a & (uint16_t) state->c;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->c);
         break;
     case 0xA2: // ANA D
-        ans = (uint16_t) state->a & (uint16_t) state->d;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->d);
         break;
     case 0xA3: // ANA E
-        ans = (uint16_t) state->a & (uint16_t) state->e;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->e);
         break;
     case 0xA4: // ANA H
-        ans = (uint16_t) state->a & (uint16_t) state->h;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->h);
         break;
     case 0xA5: // ANA L
-        ans = (uint16_t) state->a & (uint16_t) state->l;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->l);
         break;
     case 0xA6: // ANA M
         offset = (uint16_t)((state->h << 8) | (state->l));
         ans = (uint16_t) state->a & state->memory[offset];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xA7: // ANA A
-        ans = (uint16_t) state->a & (uint16_t) state->a;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        anaReg(state, state->a);
         break;
     case 0xA8: // XRA B
-        ans = (uint16_t) state->a ^ (uint16_t) state->b;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->b);
         break;
     case 0xA9: // XRA C
-        ans = (uint16_t) state->a ^ (uint16_t) state->c;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->c);
         break;
     case 0xAA: // XRA D
-        ans = (uint16_t) state->a ^ (uint16_t) state->d;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->d);
         break;
     case 0xAB: // XRA E
-        ans = (uint16_t) state->a ^ (uint16_t) state->e;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->e);
         break;
     case 0xAC: // XRA H
-        ans = (uint16_t) state->a ^ (uint16_t) state->h;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->h);
         break;
     case 0xAD: // XRA L
-        ans = (uint16_t) state->a ^ (uint16_t) state->l;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->l);
         break;
     case 0xAE: // XRA M
         offset = (uint16_t)((state->h << 8) | (state->l));
         ans = (uint16_t) state->a | state->memory[offset];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xAF: // XRA A
-        ans = (uint16_t) state->a ^ (uint16_t) state->a;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        xraReg(state, state->a);
         break;
     case 0xB0: // ORA B
-        ans = (uint16_t) state->a | (uint16_t) state->b;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->b);
         break;
     case 0xB1: // ORA C
-        ans = (uint16_t) state->a | (uint16_t) state->c;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->c);
         break;
     case 0xB2: // ORA D
-        ans = (uint16_t) state->a | (uint16_t) state->d;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->c);
         break;
     case 0xB3: // ORA E
-        ans = (uint16_t) state->a | (uint16_t) state->e;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->e);
         break;
     case 0xB4: // ORA H
-        ans = (uint16_t) state->a | (uint16_t) state->h;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->h);
         break;
     case 0xB5: // ORA L
-        ans = (uint16_t) state->a | (uint16_t) state->l;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->l);
         break;
     case 0xB6: // ORA M
         offset = (uint16_t)((state->h << 8) | (state->l));
         ans = (uint16_t) state->a | state->memory[offset];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xB7: // ORA A
-        ans = (uint16_t) state->a | (uint16_t) state->a;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        oraReg(state, state->a);
         break;
     case 0xB8: // CMP B
-        ans = (uint16_t) state->a + (~(uint16_t) state->b + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->b);
         break;
     case 0xB9: // CMP C
-        ans = (uint16_t) state->a + (~(uint16_t) state->c + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->c);
         break;
     case 0xBA: // CMP D
-        ans = (uint16_t) state->a + (~(uint16_t) state->d + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->d);
+        break;
     case 0xBB: // CMP E
-        ans = (uint16_t) state->a + (~(uint16_t) state->e + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->e);
         break;
     case 0xBC: // CMP H
-        ans = (uint16_t) state->a + (~(uint16_t) state->h + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->h);
         break;
     case 0xBD: // CMP L
-        ans = (uint16_t) state->a + (~(uint16_t) state->l + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->l);
         break;
     case 0xBE: // CMP M
         offset = (uint16_t)(state->h << 8) | (state->l);
-        ans = (uint16_t) state->a + (~(uint16_t) state->memory[offset] + 1);
-        UpdateFlags(ans, &state->cc);
+        ans = (uint16_t) state->a - (uint16_t) state->memory[offset];
+        UpdateAllFlags(state, ans);
         break;
     case 0xBF: // CMP A
-        ans = (uint16_t) state->a + (~(uint16_t) state->a + 1);
-        UpdateFlags(ans, &state->cc);
+        cmpReg(state, state->a);
         break;
     case 0xC0: // RNZ
         UndefinedInstruction(state);
@@ -805,7 +661,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0xC6: // ADI D8
         ans = (uint16_t) state->a + (uint16_t) opcode[1];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;        
         break;
     case 0xC7: // RST 0
@@ -830,8 +686,8 @@ int Emulate8080p(State8080* state)
         break;
     case 0xCE: // ACI D8
         ans = (uint16_t) state->a + (uint16_t) opcode[1] + (uint16_t) state->cc.cy;
-        UpdateFlags(ans, &state->cc);
-        state->a = ans & 0xFF;
+        UpdateAllFlags(state, ans);
+        state->a = ans & 0xFF;        
         break;
     case 0xCF: // RST 1
         UndefinedInstruction(state);
@@ -856,7 +712,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0xD6: // SUI D8
         ans = (uint16_t) state->a + (~(uint16_t) opcode[1] + 1); // Make sure this is correct 
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xD7: // RST 2
@@ -879,8 +735,8 @@ int Emulate8080p(State8080* state)
     case 0xDD: // NOP
         break;
     case 0xDE: // SBI D8 
-        ans = (uint16_t) state->a + (~(uint16_t) opcode[1] + 1) + (~(uint16_t) state->cc.cy + 1);
-        UpdateFlags(ans, &state->cc);
+        ans = (uint16_t) state->a - (uint16_t) opcode[1] - (uint16_t) state->cc.cy;
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xDF: // RST 3
@@ -906,7 +762,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0xE6: // ANI D8
         ans = (uint16_t) state->a & (uint16_t) opcode[1];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xE7: // RST 4
@@ -937,7 +793,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0xEE: // XRI D8
         ans = (uint16_t) state->a ^ (uint16_t) opcode[1];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xEF: // RST 5
@@ -963,7 +819,7 @@ int Emulate8080p(State8080* state)
         break;
     case 0xF6: // ORI D8
         ans = (uint16_t) state->a | (uint16_t) opcode[1];
-        UpdateFlags(ans, &state->cc);
+        UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
     case 0xF7: // RST 6
@@ -987,8 +843,8 @@ int Emulate8080p(State8080* state)
     case 0xFD: // NOP
         break;
     case 0xFE: // CPI D8
-        ans = (uint16_t) state->a + (~(uint16_t) opcode[1] + 1);
-        UpdateFlags(ans, &state->cc);
+        ans = (uint16_t) state->a - (uint16_t) opcode[1];
+        UpdateAllFlags(state, ans);
         break;
     case 0xFF: // RST 7
         UndefinedInstruction(state);
@@ -998,13 +854,4 @@ int Emulate8080p(State8080* state)
         break;
     }
     state->pc += 1;
-}
-
-void UpdateFlags(uint16_t ans, ConditionCodes* cc)
-{
-    cc->z = ((ans & 0xFF) == 0);
-    cc->s = ((ans & MSB_UINT8) != 0);
-    cc->cy = (ans > 0xFF);
-
-    // Worry about parity later
 }

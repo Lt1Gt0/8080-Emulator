@@ -38,7 +38,7 @@ void addReg(State8080* state, uint8_t* reg);
 void adcReg(State8080* state, uint8_t* reg);
 
 //Flags: Z, S, P, AC
-void inrReg();
+void inrReg(State8080* state, uint8_t* reg);
 
 //Flags: None
 void inx(State8080* state, uint8_t* rph, uint8_t* rpl);
@@ -118,5 +118,7 @@ P   -> plus (S = 0)         (110)
 M   -> minus (S = 1)        (111)
 
 */
+
+void UpdateAllFlags(State8080* state, uint16_t ans);
 
 #endif // __INSTRUCTIONS_H
