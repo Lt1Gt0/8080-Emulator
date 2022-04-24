@@ -3,8 +3,7 @@
 #define __INSTRUCTIONS_H
 
 #include <stdint.h>
-
-#include "8080.h"
+#include "structs.h"
 
 /* DATA TRANSFER */
 
@@ -18,7 +17,7 @@ void movFromMem(State8080* state, uint8_t* reg);
 void movToMem(State8080* state, uint8_t* reg);
 
 //Flags: none
-void mvi(State8080* state, uint8_t* reg, uint8_t* imm);
+void mvi(State8080* state, uint8_t* reg, uint8_t imm);
 
 //Flags: none
 void lxi(State8080* state, uint8_t* rph, uint8_t* rpl, uint8_t dh, uint8_t dl);
@@ -41,7 +40,7 @@ void adcReg(State8080* state, uint8_t* reg);
 void inrReg(State8080* state, uint8_t* reg);
 
 //Flags: None
-void inx(State8080* state, uint8_t* rph, uint8_t* rpl);
+void inx(uint8_t* rph, uint8_t* rpl);
 
 //Flags: Z, S, P, CY, AC
 void subReg(State8080* state, uint8_t* reg);
@@ -53,7 +52,7 @@ void sbbReg(State8080* state, uint8_t* reg);
 void dcrReg(State8080* state, uint8_t* reg);
 
 //Flags: None
-void dcx(State8080* state, uint8_t* rph, uint8_t* rpl);
+void dcx(uint8_t* rph, uint8_t* rpl);
 
 //Flags: CY
 void dad(State8080* state, uint8_t* rph, uint8_t* rpl);
@@ -120,5 +119,6 @@ M   -> minus (S = 1)        (111)
 */
 
 void UpdateAllFlags(State8080* state, uint16_t ans);
+int CheckParity(uint8_t check);
 
 #endif // __INSTRUCTIONS_H
