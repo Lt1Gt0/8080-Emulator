@@ -656,7 +656,7 @@ int Emulate8080p(State8080* state)
             state->pc += 2;
         break;
     case 0xC3: // JMP adr
-        state->pc = (opcode[2] << 8) | (opcode[1]);
+        jmp(state, ((opcode[2] << 8) | (opcode[1])));
         break;
     case 0xC4: // CNZ adr
         UndefinedInstruction(state);
@@ -680,7 +680,9 @@ int Emulate8080p(State8080* state)
         state->pc += 2;
         break;
     case 0xCA: // JZ adr
-        UndefinedInstruction(state);
+        if (state->cc.z == 0) {
+            jmp(state, ((opcode[2] << 8) | (opcode[1])));
+        }
         break;
     case 0xCB: // NOP
         break;
@@ -699,7 +701,9 @@ int Emulate8080p(State8080* state)
         call(state, 0 , 0x08);
         break;
     case 0xD0: // RNC
-        UndefinedInstruction(state);
+        if (state->cc.cy == 0) {
+            jmp(state, ((opcode[2] << 8) | (opcode[1])));
+        }
         break;
     case 0xD1: // POP D
         pop(state, &state->d, &state->e);
@@ -824,7 +828,7 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xF3: // DI
-        UndefinedInstruction(state);
+        di(state);
         break;
     case 0xF4: // CP adr
         UndefinedInstruction(state);
@@ -856,8 +860,8 @@ int Emulate8080p(State8080* state)
     case 0xFA: // JM adr
         UndefinedInstruction(state);
         break;
-    case 0xFB: // RI
-        UndefinedInstruction(state);
+    case 0xFB: // EI
+        ei(state);
         break;
     case 0xFC: // CM adr
         UndefinedInstruction(state);
@@ -880,5 +884,5 @@ int Emulate8080p(State8080* state)
     }
 
     PrintProcState(state);
-    return 1;
+    return 0;
 }

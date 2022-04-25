@@ -191,6 +191,11 @@ void cmpReg(State8080* state, uint8_t* reg)
 
 /* BRANCH */
 
+void jmp(State8080* state, uint16_t adr)
+{
+    state->pc = adr;
+}
+
 /* STACK, I/O, MACHINE CONTROL */
 
 void push(State8080* state, uint8_t* rph, uint8_t* rpl)
@@ -213,7 +218,7 @@ void call(State8080* state, uint8_t adrl, uint8_t adrh)
     state->memory[state->sp - 1] = (ret >> 8) & 0xFF;
     state->memory[state->sp - 2] = (ret & 0xFF);
     state->sp -= 2;
-    state->pc = (adrh << 8) | (adrl);
+    state->pc = (adrl << 8) | (adrh);
 }
 
 // void ret(State8080* state, uint8_t adrl, uint8_t adrh)

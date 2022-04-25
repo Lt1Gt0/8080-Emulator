@@ -94,6 +94,8 @@ void cmpReg(State8080* state, uint8_t* reg);
 
 /* BRANCH */
 
+void jmp(State8080* state, uint16_t adr);
+
 /* STACK, I/O, MACHINE CONTROL */
 
 void push(State8080* state, uint8_t* rph, uint8_t* rpl);
