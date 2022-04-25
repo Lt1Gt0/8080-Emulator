@@ -10,7 +10,7 @@
 #define UNDEFINED_OP_CODE "UNDF"
 
 int DecodeInstruction(unsigned char* buffer, int pc);
-unsigned char* ReadFileToHexBuffer(FILE* fp, size_t* filesize);
+void ReadFile(State8080* state, const char* filename, uint32_t offset);
 void PrintHexBuffer(const unsigned char* buffer, size_t buflen);
 
 

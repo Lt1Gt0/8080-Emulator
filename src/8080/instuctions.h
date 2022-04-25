@@ -4,7 +4,10 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "structs.h"
+
+void UndefinedInstruction(State8080* state);
 
 /* DATA TRANSFER */
 
@@ -96,9 +99,15 @@ void cmpReg(State8080* state, uint8_t* reg);
 void push(State8080* state, uint8_t* rph, uint8_t* rpl);
 void pop(State8080* state, uint8_t* rph, uint8_t* rpl);
 
+
+void call(State8080* state, uint8_t adrl, uint8_t adrh);
+// void ret(State8080* state, uint8_t adrl, uint8_t adrh);
+
+
+void ei(State8080* state);
+void di(State8080* state);
+
 /*
-void ei();
-void di();
 void hlt();
 void nop();
 */

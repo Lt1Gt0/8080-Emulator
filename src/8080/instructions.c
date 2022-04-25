@@ -1,5 +1,11 @@
 #include "instuctions.h"
 
+void UndefinedInstruction(State8080* state)
+{
+    printf("UNDEFINED OPCODE!\n");
+    exit(1);
+}
+
 /* DATA TRANSFER */
 
 void movReg(uint8_t* dst, uint8_t* src)
@@ -80,9 +86,8 @@ void inrReg(State8080* state, uint8_t* reg)
 void inx(uint8_t* rph, uint8_t* rpl)
 {
     rpl++;
-    if (rpl == 0) {
+    if (rpl == 0)
         rph++;
-    }
 }
 
 //Flags: Z, S, P, CY, AC
@@ -202,9 +207,31 @@ void pop(State8080* state, uint8_t* rph, uint8_t* rpl)
     state->sp += 2;
 }
 
+void call(State8080* state, uint8_t adrl, uint8_t adrh)
+{
+    uint16_t ret = state->pc + 2;
+    state->memory[state->sp - 1] = (ret >> 8) & 0xFF;
+    state->memory[state->sp - 2] = (ret & 0xFF);
+    state->sp -= 2;
+    state->pc = (adrh << 8) | (adrl);
+}
+
+// void ret(State8080* state, uint8_t adrl, uint8_t adrh)
+// {
+// 
+// }
+
+void ei(State8080* state)
+{
+    state->int_enable = 1;
+}
+
+void di(State8080* state)
+{
+    state->int_enable = 0;
+}
+
 /*
-void ei();
-void di();
 void hlt();
 void nop();
 */
@@ -249,7 +276,7 @@ int CheckParity(int check, int size)
 void PrintProcState(State8080* state)
 {
     printf("\tC=%d, P=%d, Z=%d\n", state->cc.cy, state->cc.p, state->cc.z);
-    printf("\tA $%02x | B $%02x | C $%02x | D $%02x | E $%02x | H $%02x | L $%02x | SP $%04x\n\n",
+    printf("\tA $%02x | BC $%02x%02x | DE $%02x%02x | HL $%02x%02x | SP $%04x\n\n",
     state->a, state->b, state->c, state->d, state->e,
     state->h, state->l, state->sp);
 }

@@ -7,17 +7,11 @@ State8080* Init8080()
     return state;
 }
 
-void UndefinedInstruction(State8080* state)
-{
-    printf("UNDEFINED OPCODE!\n");
-    exit(1);
-}
-
 int Emulate8080p(State8080* state)
 {
     DecodeInstruction(state->memory, state->pc);
     unsigned char* opcode = &state->memory[state->pc];
-    uint16_t ans, offset, ret;
+    uint16_t ans, offset;
     uint8_t psw, tmp;
     
     state->pc += 1;
@@ -31,7 +25,10 @@ int Emulate8080p(State8080* state)
         stax(state, &state->b, &state->c);
         break;
     case 0x03: // INX B
-        // inx
+        state->c++;
+        if (state->c == 0)
+            state->b++;
+        // inx(&state->b, &state->c);
         break;
     case 0x04: // INR B
         inrReg(state, &state->b);
@@ -79,9 +76,10 @@ int Emulate8080p(State8080* state)
         stax(state, &state->d, &state->e);
         break;
     case 0x13: // INX D
-        ans = (uint16_t)((state->d << 8) | (state->e)) + (uint16_t)1;
-        state->d = (ans >> 8) & 0xFF;
-        state->e = ans & 0xFF;
+        state->e++;
+        if (state->e == 0)
+            state->d++;
+        // inx(&state->d, &state->e);
         break;
     case 0x14: // INR D
         inrReg(state, &state->d);
@@ -123,7 +121,7 @@ int Emulate8080p(State8080* state)
     case 0x20: // NOP
         break;
     case 0x21: // LXI H, D16
-        lxi(state, &state->h, &state->l, opcode[1], opcode[2]);
+        lxi(state, &state->l, &state->h, opcode[1], opcode[2]);
         break;
     case 0x22: // SHLD adr
         offset = (opcode[2] << 8) | (opcode[1]);
@@ -132,9 +130,10 @@ int Emulate8080p(State8080* state)
         state->pc += 2;
         break;
     case 0x23: // INX H
-        ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)1;
-        state->h = (ans >> 8) & 0xFF;
-        state->l = ans & 0xFF;
+        state->l++;
+        if (state->l == 0)
+            state->h++;
+        // inx(&state->h, &state->l);
         break;
     case 0x24: // INR H
         inrReg(state, &state->h);
@@ -671,7 +670,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;        
         break;
     case 0xC7: // RST 0
-        UndefinedInstruction(state);
+        call(state, 0, 0);
         break;
     case 0xC8: // RZ
         UndefinedInstruction(state);
@@ -689,11 +688,7 @@ int Emulate8080p(State8080* state)
         UndefinedInstruction(state);
         break;
     case 0xCD: // CALL adr
-        ret = state->pc + 2;
-        state->memory[state->sp - 1] = (ret >> 8) & 0xFF;
-        state->memory[state->sp - 2] = (ret & 0xFF);
-        state->sp -= 2;
-        state->sp = (opcode[2] << 8) | (opcode[1]);
+        call(state, opcode[2], opcode[1]); 
         break;
     case 0xCE: // ACI D8
         ans = (uint16_t) state->a + (uint16_t) opcode[1] + (uint16_t) state->cc.cy;
@@ -701,7 +696,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;        
         break;
     case 0xCF: // RST 1
-        UndefinedInstruction(state);
+        call(state, 0 , 0x08);
         break;
     case 0xD0: // RNC
         UndefinedInstruction(state);
@@ -727,7 +722,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;
         break;
     case 0xD7: // RST 2
-        UndefinedInstruction(state);
+        call(state, 0, 0x10);
         break;
     case 0xD8: // RC
         UndefinedInstruction(state);
@@ -751,7 +746,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;
         break;
     case 0xDF: // RST 3
-        UndefinedInstruction(state);
+        call(state, 0, 0x18);
         break;
     case 0xE0: // RPO
         UndefinedInstruction(state);
@@ -779,7 +774,7 @@ int Emulate8080p(State8080* state)
         state->a = ans;
         break;
     case 0xE7: // RST 4
-        UndefinedInstruction(state);
+        call(state, 0, 0x20);
         break;
     case 0xE8: // RPE
         UndefinedInstruction(state);
@@ -810,7 +805,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;
         break;
     case 0xEF: // RST 5
-        UndefinedInstruction(state);
+        call(state, 0, 0x28);
         break;
     case 0xF0: // RP
         UndefinedInstruction(state);
@@ -850,7 +845,7 @@ int Emulate8080p(State8080* state)
         state->a = ans & 0xFF;
         break;
     case 0xF7: // RST 6
-        UndefinedInstruction(state);
+        call(state, 0, 0x30);
         break;
     case 0xF8: // RM
         UndefinedInstruction(state);
@@ -877,7 +872,7 @@ int Emulate8080p(State8080* state)
         state->pc += 1;
         break;
     case 0xFF: // RST 7
-        UndefinedInstruction(state);
+        call(state, 0, 0x38);
         break;
     default:
         UndefinedInstruction(state);
@@ -885,4 +880,5 @@ int Emulate8080p(State8080* state)
     }
 
     PrintProcState(state);
+    return 1;
 }

@@ -4,31 +4,30 @@
 
 int main(int argc, char** argv)
 {
-    if (argc < 2) {
-        printf("Invalid Argument Count\n");
-        return -1;
+    int running = 1;
+    State8080* state = Init8080();
+    
+    /* Load ROM into memory */
+    ReadFile(state, "Invaders/invaders.h", 0x0); 
+    ReadFile(state, "Invaders/invaders.g", 0x800); 
+    ReadFile(state, "Invaders/invaders.f", 0x1000); 
+    ReadFile(state, "Invaders/invaders.e", 0x1800); 
+
+    while (running) {
+        running = Emulate8080p(state);
     }
 
-    FILE* fp = fopen(argv[1], "r+b");
-    
-    if (fp == NULL) {
-        printf("Invalid File Input\n");
-        fclose(fp);
-        return -1;
-    }
-    
-    size_t filesize;
-    unsigned char* buffer = ReadFileToHexBuffer(fp, &filesize);
+    // size_t filesize;
+    // unsigned char* buffer = ReadFileToHexBuffer(fp, &filesize);
     // PrintHexBuffer(buffer, filesize);
     
-    State8080* state = Init8080();
-    state->memory = buffer;
+    // State8080* state = Init8080();
+    // state->memory = buffer;
 
-    size_t progCount = 0;
-    while (progCount < filesize) {
-        Emulate8080p(state);
-        // progCount += DecodeInstruction(buffer, progCount);
-    }
+    // size_t progCount = 0;
+    // while (progCount < filesize) {
+        // Emulate8080p(state);
+    // }
 
     return 0;
 }
