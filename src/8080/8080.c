@@ -400,7 +400,8 @@ int Emulate8080p(State8080* state)
     case 0x75: // MOV M, L
         movToMem(state, &state->l);
         break;
-    case 0x76: // HLT
+    case 0x76: // HLTa
+        exit(1);
         break;
     case 0x77: // MOV M, A
         movToMem(state, &state->a);

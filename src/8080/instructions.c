@@ -236,11 +236,6 @@ void di(State8080* state)
     state->int_enable = 0;
 }
 
-/*
-void hlt();
-void nop();
-*/
-
 /* CONDITIONAL CODES */
 
 /*
