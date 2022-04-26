@@ -1,4 +1,4 @@
-#include "8080.h"
+#include "8080/8080.h"
 
 State8080* Init8080()
 {

@@ -9,9 +9,10 @@ OBJ_DIR = obj
 #Compiler and linker things
 CC = gcc
 CCFLAGS = -g -o0#-g -Wall -Wextra
-CCFLAGS +=
+CCFLAGS += 
 LD = ld
 LDFLAGS = 
+INCLUDES = -Isrc/headers
 
 SRC = $(call rwildcard,$(SRC_DIR),*.c) 
 ASMSRC = $(call rwildcard,$(SRC_DIR),*.asm) 
@@ -29,12 +30,12 @@ Emulator: $(BUILD_DIR)/$(OBJ_NAME)
 $(BUILD_DIR)/$(OBJ_NAME): $(OBJS)
 	@ echo ~~~~~ LINKING $^ ~~~~~
 	@ mkdir -p $(@D)
-	$(CC) $^ -o $@
+	$(CC) $(INCLUDES) $^ -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@ echo ~~~~~ COMPILING $^ ~~~~~
 	@ mkdir -p $(@D)
-	$(CC) $(CCFLAGS) -c $^ -o $@
+	$(CC) $(CCFLAGS) $(INCLUDES) -c $^ -o $@
 
 $(OBJ_DIR)/%_asm.o: $(SRC_DIR)/%.asm
 	@ echo ~~~~~ COMPILING $^ ~~~~~

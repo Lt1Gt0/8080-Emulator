@@ -1,4 +1,4 @@
-#include "instuctions.h"
+#include "8080/instuctions.h"
 
 void UndefinedInstruction(State8080* state)
 {
