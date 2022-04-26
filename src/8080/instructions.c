@@ -65,7 +65,7 @@ void addReg(State8080* state, uint8_t* reg)
 //Flags: Z, S, P, CY, AC
 void adcReg(State8080* state, uint8_t* reg)
 {
-    uint16_t ans = (uint16_t) state->a + (uint16_t) *reg + (uint16_t) state->cc.cy; //
+    uint16_t ans = (uint16_t) state->a + (uint16_t) *reg + (uint16_t) state->cy; //
     UpdateAllFlags(state, ans);
     state->a = ans & 0xFF;
 }
@@ -74,12 +74,12 @@ void adcReg(State8080* state, uint8_t* reg)
 void inrReg(State8080* state, uint8_t* reg)
 {
     uint16_t ans = (uint16_t) *reg + 1; //
-    uint8_t tmp = state->cc.cy;
+    uint8_t tmp = state->cy;
     UpdateAllFlags(state, ans);
     *reg = ans & 0xFF; //
 
     //restore CY
-    state->cc.cy = tmp;
+    state->cy = tmp;
 }
 
 //Flags: None
@@ -101,7 +101,7 @@ void subReg(State8080* state, uint8_t* reg)
 //Flags: Z, S, P, CY, AC
 void sbbReg(State8080* state, uint8_t* reg)
 {
-    uint16_t ans = (uint16_t) state->a - (uint16_t) *reg - (uint16_t) state->cc.cy; //
+    uint16_t ans = (uint16_t) state->a - (uint16_t) *reg - (uint16_t) state->cy; //
     UpdateAllFlags(state, ans);
     state->a = ans & 0xFF;
 }
@@ -128,7 +128,7 @@ void dad(State8080* state, uint8_t* rph, uint8_t* rpl)
     uint16_t ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)(((uint8_t)*rph << 8) | (uint8_t)*rpl); //
     state->h = ans >> 8;
     state->l = ans & 0xFF;
-    state->cc.cy = (ans & 0xFF);
+    state->cy = (ans & 0xFF);
 }
 
 //Flags: Z, S, P, CY, AC
@@ -144,7 +144,7 @@ void anaReg(State8080* state, uint8_t* reg)
 {
     uint16_t ans = (uint16_t) state->a & (uint16_t) *reg; //
     UpdateAllFlags(state, ans);
-    state->cc.cy = 0;
+    state->cy = 0;
     state->a = ans & 0xFF;
 }
 
@@ -153,8 +153,8 @@ void xraReg(State8080* state, uint8_t* reg)
 {
     uint16_t ans = (uint16_t) state->a ^ (uint16_t) *reg; //
     UpdateAllFlags(state, ans);
-    state->cc.cy = 0;
-    state->cc.ac = 0;
+    state->cy = 0;
+    state->ac = 0;
     state->a = ans & 0xFF;
 }
 
@@ -163,8 +163,8 @@ void oraReg(State8080* state, uint8_t* reg)
 {
     uint16_t ans = (uint16_t) state->a | (uint16_t) *reg; //
     UpdateAllFlags(state, ans);
-    state->cc.cy = 0;
-    state->cc.ac = 0;
+    state->cy = 0;
+    state->ac = 0;
     state->a = ans & 0xFF;
 }
 
@@ -240,7 +240,7 @@ void di(State8080* state)
 
 /*
 
-Condition                   CCC
+Condition                   
 NZ  -> not zero (Z = 0)     (000)     
 Z   -> zero (Z = 1)         (001)
 NC  -> no carry (CY = 0)    (010)
@@ -254,11 +254,11 @@ M   -> minus (S = 1)        (111)
 
 void UpdateAllFlags(State8080* state, uint16_t ans)
 {
-    state->cc.z = ((ans & 0xFF) == 0);
-    state->cc.s = ((ans & MSB_UINT8) != 0);
-    state->cc.cy = (ans > 0xFF);
-    state->cc.p = CheckParity(ans, 16);
-    // state->cc.ac
+    state->z = ((ans & 0xFF) == 0);
+    state->s = ((ans & MSB_UINT8) != 0);
+    state->cy = (ans > 0xFF);
+    state->p = CheckParity(ans, 16);
+    // state->ac
 }
 
 int CheckParity(int check, int size)
@@ -275,7 +275,7 @@ int CheckParity(int check, int size)
 
 void PrintProcState(State8080* state)
 {
-    printf("\tC=%d, P=%d, Z=%d\n", state->cc.cy, state->cc.p, state->cc.z);
+    printf("\tC=%d, P=%d, Z=%d\n", state->cy, state->p, state->z);
     printf("\tA $%02x | BC $%02x%02x | DE $%02x%02x | HL $%02x%02x | SP $%04x\n\n",
     state->a, state->b, state->c, state->d, state->e,
     state->h, state->l, state->sp);

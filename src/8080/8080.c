@@ -65,7 +65,7 @@ int Emulate8080p(State8080* state)
     case 0x0F: // RRC
         tmp = state->a;
         state->a = ((tmp & 1) << 7) | (tmp >> 1);
-        state->cc.cy = ((tmp & 1) == 1);
+        state->cy = ((tmp & 1) == 1);
         break;
     case 0x10: // NOP
         break;
@@ -115,8 +115,8 @@ int Emulate8080p(State8080* state)
         break;
     case 0x1F: // RAR
         tmp = state->a;
-        state->a = (state->cc.cy << 7) | (tmp >> 1);
-        state->cc.cy = ((tmp & 1) == 1);
+        state->a = (state->cy << 7) | (tmp >> 1);
+        state->cy = ((tmp & 1) == 1);
         break;
     case 0x20: // NOP
         break;
@@ -189,9 +189,9 @@ int Emulate8080p(State8080* state)
     case 0x34: // INR M
         // Flags: Z, S, P, AC
         ans = (uint16_t)((state->h << 8) | (state->l)) + (uint16_t)1;
-        tmp = state->cc.cy;
+        tmp = state->cy;
         UpdateAllFlags(state, ans);
-        state->cc.cy = tmp; // retore cy
+        state->cy = tmp; // retore cy
         state->h = (ans >> 8) & 0xFF;
         state->l = ans & 0xFF;
         break;
@@ -200,9 +200,9 @@ int Emulate8080p(State8080* state)
         // Not sure if any of this is correct
         offset = ((uint16_t)(state->h << 8) | (state->l));
         ans = state->memory[offset] - 1;
-        tmp = state->cc.cy;
+        tmp = state->cy;
         UpdateAllFlags(state, ans);
-        state->cc.cy = tmp; // retore cy
+        state->cy = tmp; // retore cy
         state->h = (ans >> 8) & 0xFF;
         state->l = ans & 0xFF;
         break;
@@ -212,7 +212,7 @@ int Emulate8080p(State8080* state)
         state->pc += 1;
         break;
     case 0x37: // STC
-        state->cc.cy = 1;
+        state->cy = 1;
         break;
     case 0x38: // NOP
         break;
@@ -237,7 +237,7 @@ int Emulate8080p(State8080* state)
         mvi(state, &state->a, opcode[1]);
         break;
     case 0x3F: // CMC
-        state->cc.cy = ~(state->cc.cy);
+        state->cy = ~(state->cy);
         break;
     case 0x40: // MOV B, B
         // Set register to itself so just break
@@ -530,7 +530,7 @@ int Emulate8080p(State8080* state)
         sbbReg(state, &state->l);
         break;
     case 0x9E: // SBB M
-        ans = (uint16_t) state->a - ((uint16_t)(state->h << 8) | (state->l)) - (uint16_t) state->cc.cy;
+        ans = (uint16_t) state->a - ((uint16_t)(state->h << 8) | (state->l)) - (uint16_t) state->cy;
         UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
@@ -651,7 +651,7 @@ int Emulate8080p(State8080* state)
         pop(state, &state->b, &state->c);
         break;
     case 0xC2: // JNZ adr 
-        if (state->cc.z == 0) 
+        if (state->z == 0) 
             state->pc = (opcode[2] << 8) | (opcode[1]);
         else 
             state->pc += 2;
@@ -681,7 +681,7 @@ int Emulate8080p(State8080* state)
         state->pc += 2;
         break;
     case 0xCA: // JZ adr
-        if (state->cc.z == 0) {
+        if (state->z == 0) {
             jmp(state, ((opcode[2] << 8) | (opcode[1])));
         }
         break;
@@ -694,7 +694,7 @@ int Emulate8080p(State8080* state)
         call(state, opcode[2], opcode[1]); 
         break;
     case 0xCE: // ACI D8
-        ans = (uint16_t) state->a + (uint16_t) opcode[1] + (uint16_t) state->cc.cy;
+        ans = (uint16_t) state->a + (uint16_t) opcode[1] + (uint16_t) state->cy;
         UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;        
         break;
@@ -702,7 +702,7 @@ int Emulate8080p(State8080* state)
         call(state, 0 , 0x08);
         break;
     case 0xD0: // RNC
-        if (state->cc.cy == 0) {
+        if (state->cy == 0) {
             jmp(state, ((opcode[2] << 8) | (opcode[1])));
         }
         break;
@@ -746,7 +746,7 @@ int Emulate8080p(State8080* state)
     case 0xDD: // NOP
         break;
     case 0xDE: // SBI D8 
-        ans = (uint16_t) state->a - (uint16_t) opcode[1] - (uint16_t) state->cc.cy;
+        ans = (uint16_t) state->a - (uint16_t) opcode[1] - (uint16_t) state->cy;
         UpdateAllFlags(state, ans);
         state->a = ans & 0xFF;
         break;
@@ -774,8 +774,8 @@ int Emulate8080p(State8080* state)
     case 0xE6: // ANI D8
         ans = state->a & opcode[1];
         UpdateAllFlags(state, (uint16_t)ans);
-        state->cc.p = CheckParity(ans, 8);
-        state->cc.cy = 0;
+        state->p = CheckParity(ans, 8);
+        state->cy = 0;
         state->a = ans;
         break;
     case 0xE7: // RST 4
@@ -818,11 +818,11 @@ int Emulate8080p(State8080* state)
     case 0xF1: // POP PSW
         state->a = state->memory[state->sp + 1];
         psw = state->memory[state->sp];
-        state->cc.z = ((psw & 0x01) == 0x01);
-        state->cc.s = ((psw & 0x02) == 0x02);
-        state->cc.p = ((psw & 0x04) == 0x04);
-        state->cc.cy = ((psw & 0x05) == 0x05);
-        state->cc.ac = ((psw & 0x10) == 0x10);
+        state->z = ((psw & 0x01) == 0x01);
+        state->s = ((psw & 0x02) == 0x02);
+        state->p = ((psw & 0x04) == 0x04);
+        state->cy = ((psw & 0x05) == 0x05);
+        state->ac = ((psw & 0x10) == 0x10);
         state->sp += 2;
         break;
     case 0xF2: // JP adr
@@ -836,11 +836,11 @@ int Emulate8080p(State8080* state)
         break;
     case 0xF5: // PUSH PSW
         state->memory[state->sp - 1] = state->a;
-        psw=(state->cc.z
-            |state->cc.s << 1
-            |state->cc.p << 2
-            |state->cc.cy << 3
-            |state->cc.ac << 4);
+        psw=(state->z
+            |state->s << 1
+            |state->p << 2
+            |state->cy << 3
+            |state->ac << 4);
         state->memory[state->sp - 2] = psw;
         state->sp -= 2;
         break;
@@ -872,8 +872,8 @@ int Emulate8080p(State8080* state)
     case 0xFE: // CPI D8
         tmp = state->a - opcode[1];
         UpdateAllFlags(state, ans);
-        state->cc.p = CheckParity(tmp, 8);
-        state->cc.cy = (state->a < opcode[1]);
+        state->p = CheckParity(tmp, 8);
+        state->cy = (state->a < opcode[1]);
         state->pc += 1;
         break;
     case 0xFF: // RST 7

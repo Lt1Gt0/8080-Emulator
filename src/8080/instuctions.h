@@ -80,18 +80,6 @@ void oraReg(State8080* state, uint8_t* reg);
 // cy = 1 if (A) < (r)
 void cmpReg(State8080* state, uint8_t* reg);
 
-//Flags: CY
-// void rlc();
-
-//Flags: CY
-// void rrc();
-
-//Flags: CY
-// void ral();
-
-//Flags: CY
-// void rar();
-
 /* BRANCH */
 
 void jmp(State8080* state, uint16_t adr);
