@@ -11,6 +11,27 @@
 #define MSB_UINT8   0x80
 #define MSB_UINT16  0x8000 
 
+typedef enum {
+    NZ  = 0x00, // Not Zero (Z = 0) 
+    Z   = 0x01, // Zero (Z = 1)
+    NC  = 0x02, // No Carry (CY = 0)
+    C   = 0x03, // Carry (CY = 1)
+    PO  = 0x04, // Parity Odd (P = 0)
+    PE  = 0x05, // Parity Even (P = 1)
+    P   = 0x06, // Plus (S = 0)
+    M   = 0x07  // Minus (S = 1)
+}ConditionFlags;
+
+// from the 8080 Manual, Flag bits will be check
+// by shifting bits like such, the bits are in order
+// inside of the state struct for PSW
+typedef enum {
+    SIGN_FLAG   = 1 << 0,
+    ZERO_FLAG   = 1 << 1,
+    AUX_FLAG    = 1 << 3,
+    PARITY_FLAG = 1 << 5,
+    CARRY_FLAG  = 1 << 7
+}flagBits;
 typedef struct State8080 {
     
     // Primary 8-bit accumulator
@@ -51,18 +72,22 @@ typedef struct State8080 {
     // 8-bit Flags
     union {
         struct {
-            uint8_t z   : 1; // Zero
             uint8_t s   : 1; // Sign
-            uint8_t p   : 1; // Parity
-            uint8_t cy  : 1; // Carry
+            uint8_t z   : 1; // Zero 
+            uint8_t pad : 1; // Padding
             uint8_t ac  : 1; // Auxiliary Carry
-            uint8_t pad : 3; // Padding
+            uint8_t pad : 1; // Padding
+            uint8_t p   : 1; // Parity 
+            uint8_t pad : 1; // Padding
+            uint8_t cy  : 1; // Carry
         };
-        uint8_t PSW;
+        uint8_t PSW; // Program Status Word
     };
 
     uint8_t* memory; // Memory location
-    uint8_t int_enable; // interrupts enabled    
+    uint8_t int_enable; // interrupts enabled
+    uint8_t int_pend; // Pending Interrupts 
+
 }State8080;
 
 #endif // __STRUCTS_H
