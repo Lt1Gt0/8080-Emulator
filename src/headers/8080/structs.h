@@ -32,6 +32,7 @@ typedef enum {
     PARITY_FLAG = 1 << 5,
     CARRY_FLAG  = 1 << 7
 }flagBits;
+
 typedef struct State8080 {
     
     // Primary 8-bit accumulator
@@ -72,14 +73,14 @@ typedef struct State8080 {
     // 8-bit Flags
     union {
         struct {
-            uint8_t s   : 1; // Sign
-            uint8_t z   : 1; // Zero 
-            uint8_t pad : 1; // Padding
-            uint8_t ac  : 1; // Auxiliary Carry
-            uint8_t pad : 1; // Padding
-            uint8_t p   : 1; // Parity 
-            uint8_t pad : 1; // Padding
-            uint8_t cy  : 1; // Carry
+            uint8_t s       : 1; // Sign
+            uint8_t z       : 1; // Zero 
+            uint8_t pad1    : 1; // Padding
+            uint8_t ac      : 1; // Auxiliary Carry
+            uint8_t pad2    : 1; // Padding
+            uint8_t p       : 1; // Parity 
+            uint8_t pad3    : 1; // Padding
+            uint8_t cy      : 1; // Carry
         };
         uint8_t PSW; // Program Status Word
     };

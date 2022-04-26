@@ -13,8 +13,13 @@ int main(int argc, char** argv)
     ReadFile(state, "Invaders/invaders.f", 0x1000); 
     ReadFile(state, "Invaders/invaders.e", 0x1800); 
 
-    while (running == 0) {
-        running = Emulate8080p(state);
+    // while (running == 0) {
+        // running = Emulate8080p(state);
+    // }
+
+    
+    while (state->pc < 0x2000) {
+        state->pc += DecodeInstruction(state->memory, state->pc);
     }
 
     return 0;

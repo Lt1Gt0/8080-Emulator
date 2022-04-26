@@ -276,7 +276,6 @@ int CheckParity(int check, int size)
 void PrintProcState(State8080* state)
 {
     printf("\tC=%d, P=%d, Z=%d\n", state->cy, state->p, state->z);
-    printf("\tA $%02x | BC $%02x%02x | DE $%02x%02x | HL $%02x%02x | SP $%04x\n\n",
-    state->a, state->b, state->c, state->d, state->e,
-    state->h, state->l, state->sp);
+    printf("\tA $%02x | BC $%04x | DE $%04x | HL $%04x | SP $%04x\n\n",
+        state->a, state->bc, state->de, state->hl, state->sp);
 }

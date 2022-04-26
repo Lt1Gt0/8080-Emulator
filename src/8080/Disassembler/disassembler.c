@@ -8,819 +8,820 @@ int DecodeInstruction(unsigned char* buffer, int pc)
 
     switch (*opcode) {
     case 0x00: 
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x01:
-        printf("LXI B, #$%02x%02x", opcode[2], opcode[1]);
+        PrintRegMultipleOperands("LXI", "B", opcode, 3);
         opBytes = 3;
         break;
     case 0x02:
-        printf("STAX B");
+        PrintOpcodeReg("STAX", "B", opcode[0]);
         break;
     case 0x03:
-        printf("INX B");
+        PrintOpcodeReg("INX", "B", opcode[0]);
         break;
     case 0x04:
-        printf("INR B");
+        PrintOpcodeReg("INR", "B", opcode[0]);
         break;
     case 0x05:
-        printf("DCR B");
+        PrintOpcodeReg("DCR", "B", opcode[0]);
         break;
     case 0x06:
-        printf("MVI B, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "B", opcode, 2);
         opBytes = 2;
         break;
     case 0x07:
-        printf("RLC");
+        PrintOpcode("RLC", opcode[0]);
         break;
     case 0x08:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x09:
-        printf("DAD B");
+        PrintOpcodeReg("DAD", "B", opcode[0]);
         break;
     case 0x0A:
-        printf("LDAX B");
+        PrintOpcodeReg("LDAX", "B", opcode[0]);
         break;
     case 0x0B:
-        printf("DCX B");
+        PrintOpcodeReg("DCX", "B", opcode[0]);
         break;
     case 0x0C:
-        printf("INR C");
+        PrintOpcodeReg("INR", "C", opcode[0]);
         break;
     case 0x0D:
-        printf("DCR C");
+        PrintOpcodeReg("DCR", "C", opcode[0]);
         break;
     case 0x0E:
-        printf("MVI C, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "C", opcode, 2);
         opBytes = 2;
         break;
     case 0x0F:
-        printf("RRC"); 
+        PrintOpcode("RRC", opcode[0]);
         break;
     case 0x10:
-        printf("NOP"); 
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x11:
-        printf("LXI D, #$%02x%02x", opcode[2], opcode[1]); 
+        PrintRegMultipleOperands("LXI", "D", opcode, 3);
         opBytes = 3;
         break;
     case 0x12:
-        printf("STAX D"); 
+        PrintOpcodeReg("STAX", "D", opcode[0]);
         break;
     case 0x13: 
-        printf("INX D"); 
+        PrintOpcodeReg("INX", "D", opcode[0]);
         break;
     case 0x14:
-        printf("INR D"); 
+        PrintOpcodeReg("INR", "D", opcode[0]);
         break;
     case 0x15:
-        printf("DCR D"); 
+        PrintOpcodeReg("DCR", "D", opcode[0]);
         break;
     case 0x16:
-        printf("MVI D, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "D", opcode, 2);
         opBytes = 2;
         break;
     case 0x17:
-        printf("RAL");
+        PrintOpcode("RAL", opcode[0]);
         break;
     case 0x18:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x19:
-        printf("DAD D");
+        PrintOpcodeReg("DAD", "D", opcode[0]);
         break;
     case 0x1A:
-        printf("LDAX D");
+        PrintOpcodeReg("LDAX", "D", opcode[0]);
         break;
     case 0x1B:
-        printf("DCX D");
+        PrintOpcodeReg("DCX", "D", opcode[0]);
         break;
     case 0x1C:
-        printf("INR E");
+        PrintOpcodeReg("INR", "E", opcode[0]);
         break;
     case 0x1D:
-        printf("DCR E");
+        PrintOpcodeReg("DCR", "E", opcode[0]);
         break;
     case 0x1E:
-        printf("MVI E, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "E", opcode, 2);
         opBytes = 2;
         break;
     case 0x1F:
-        printf("RAR");
+        PrintOpcode("RAR", opcode[0]);
         break;
     case 0x20:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x21:
-        printf("LXI H, #$%02x%02x", opcode[2], opcode[1]);
+        PrintRegMultipleOperands("LXI", "H", opcode, 3);
         opBytes = 3;
         break;
     case 0x22:
-        printf("SHLD $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("SHLD", opcode, 3);
         opBytes = 3;
         break;
     case 0x23:
-        printf("INX H");
+        PrintOpcodeReg("INX", "H", opcode[0]);
         break;
     case 0x24:
-        printf("INR H");
+        PrintOpcodeReg("INR", "H", opcode[0]);
         break;
     case 0x25:
-        printf("DCR H");
+        PrintOpcodeReg("DCR", "H", opcode[0]);
         break;
     case 0x26: 
-        printf("MVI H, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "H", opcode, 2);
         opBytes = 2;
         break;
     case 0x27:
-        printf("DAA");
+        PrintOpcode("DAA", opcode[0]);
         break;
     case 0x28:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x29:
-        printf("DAD H");
+        PrintOpcodeReg("DAD", "H", opcode[0]);
         break;
     case 0x2A:
-        printf("LHLD $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("LHLD", opcode, 2);
         opBytes = 3;
         break;
     case 0x2B:
-        printf("DCX H");
+        PrintOpcodeReg("DCX", "H", opcode[0]);
         break;
     case 0x2C:
-        printf("INR L");
+        PrintOpcodeReg("INR", "L", opcode[0]);
         break;
     case 0x2D:
-        printf("DCR L");
+        PrintOpcodeReg("DCR", "L", opcode[0]);
         break;
     case 0x2E:
-        printf("MVI L, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "L", opcode, 2);
         opBytes = 2;
         break;
     case 0x2F:
-        printf("CMA");
+        PrintOpcode("CMA", opcode[0]);
         break;
     case 0x30:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x31: 
-        printf("LXI SP, #$%02x%02x", opcode[2], opcode[1]);
+        PrintRegMultipleOperands("LXI", "SP", opcode, 3);
         opBytes = 3;
         break;
     case 0x32:
-        printf("STA $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("STA", opcode, 3);
         opBytes = 3;
         break;
     case 0x33:
-        printf("INX SP");
+        PrintOpcodeReg("INX", "SP", opcode[0]);
         break;
     case 0x34:
-        printf("INR M");
+        PrintOpcodeReg("INR", "M", opcode[0]);
         break;
     case 0x35:
-        printf("DCR M");
+        PrintOpcodeReg("DCR", "M", opcode[0]);
         break;
     case 0x36:
-        printf("MVI M, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "M", opcode, 2);
         opBytes = 2;
         break;
     case 0x37:
-        printf("STC");
+        PrintOpcode("STC", opcode[0]);
         break;
     case 0x38:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0x39: 
-        printf("DAD SP");
+        PrintOpcodeReg("DAD", "SP", opcode[0]);
         break;
     case 0x3A:
-        printf("LDA $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("LDA", opcode, 3);
         opBytes = 3;
         break;
     case 0x3B:
-        printf("DCX SP");
+        PrintOpcodeReg("DCX", "SP", opcode[0]);
         break;
     case 0x3C:
-        printf("INR A");
+        PrintOpcodeReg("INR", "A", opcode[0]);
         break;
     case 0x3D:
-        printf("DCR A");
+        PrintOpcodeReg("DCR", "A", opcode[0]);
         break;
     case 0x3E:
-        printf("MVI A, #$%02x", opcode[1]);
+        PrintRegMultipleOperands("MVI", "A", opcode, 2);
         opBytes = 2;
         break;
     case 0x3F:
-        printf("CMC");
+        PrintOpcode("CMC", opcode[0]);
         break;
     case 0x40:
-        printf("MOV B, B");
+        PrintOpcodeReg("MOV", "B, B", opcode[0]);
         break;
     case 0x41:
-        printf("MOV B, C");
+        PrintOpcodeReg("MOV", "B , C", opcode[0]);
         break;
     case 0x42:
-        printf("MOV B, D");
+        PrintOpcodeReg("MOV", "B, D", opcode[0]);
         break;
     case 0x43:
-        printf("MOV B, E");
+        PrintOpcodeReg("MOV", "B, E", opcode[0]);
         break;
     case 0x44:
-        printf("MOV B, H");
+        PrintOpcodeReg("MOV", "B, H", opcode[0]);
         break;
     case 0x45:
-        printf("MOV B, L");
+        PrintOpcodeReg("MOV", "B, L", opcode[0]);
         break;
     case 0x46:
-        printf("MOV B, M");
+        PrintOpcodeReg("MOV", "B, M", opcode[0]);
         break;
     case 0x47:
-        printf("MOV B, A");
+        PrintOpcodeReg("MOV", "B, A", opcode[0]);
         break;
     case 0x48:
-        printf("MOV C, B");
+        PrintOpcodeReg("MOV", "C, B", opcode[0]);
         break;
     case 0x49:
-        printf("MOV C, C");
+        PrintOpcodeReg("MOV", "C, C", opcode[0]);
         break;
     case 0x4A:
-        printf("MOV C, D");
+        PrintOpcodeReg("MOV", "C, D", opcode[0]);
         break;
     case 0x4B:
-        printf("MOV C, E");
+        PrintOpcodeReg("MOV", "C, E", opcode[0]);
         break;
     case 0x4C: 
-        printf("MOV C, H");
+        PrintOpcodeReg("MOV", "C, H", opcode[0]);
         break;
     case 0x4D:
-        printf("MOV C, L");
+        PrintOpcodeReg("MOV", "C, L", opcode[0]);
         break;
     case 0x4E:
-        printf("MOV C, M");
+        PrintOpcodeReg("MOV", "C, M", opcode[0]);
         break;
     case 0x4F:
-        printf("MOV C, A");
+        PrintOpcodeReg("MOV", "C, A", opcode[0]);
         break;
     case 0x50:
-        printf("MOV D, B");
+        PrintOpcodeReg("MOV", "C, B", opcode[0]);
         break;
     case 0x51:
-        printf("MOV D, C");
+        PrintOpcodeReg("MOV", "D, C", opcode[0]);
         break;
     case 0x52:
-        printf("MOV D, D");
+        PrintOpcodeReg("MOV", "D, D", opcode[0]);
         break;
     case 0x53:
-        printf("MOV D, E");
+        PrintOpcodeReg("MOV", "D, E", opcode[0]);
         break;
     case 0x54:
-        printf("MOV D, H");
+        PrintOpcodeReg("MOV", "D, H", opcode[0]);
         break;
     case 0x55:
-        printf("MOV D, L");
+        PrintOpcodeReg("MOV", "D, H", opcode[0]);
         break;
     case 0x56:
-        printf("MOV D, M");
+        PrintOpcodeReg("MOV", "D, M", opcode[0]);
         break;
     case 0x57:
-        printf("MOV D, A");
+        PrintOpcodeReg("MOV", "D, A", opcode[0]);
         break;
     case 0x58:
-        printf("MOV E, B");
+        PrintOpcodeReg("MOV", "E, B", opcode[0]);
         break;
     case 0x59:
-        printf("MOV E, C");
+        PrintOpcodeReg("MOV", "E, C", opcode[0]);
         break;
     case 0x5A:
-        printf("MOV E, D");
+        PrintOpcodeReg("MOV", "E, D", opcode[0]);
         break;
     case 0x5B:
-        printf("MOV E, E");
+        PrintOpcodeReg("MOV", "E, E", opcode[0]);
         break;
     case 0x5C:
-        printf("MOV E, H");
+        PrintOpcodeReg("MOV", "E, H", opcode[0]);
         break;
     case 0x5D:
-        printf("MOV E, L");
+        PrintOpcodeReg("MOV", "E, L", opcode[0]);
         break;
     case 0x5E:
-        printf("MOV E, M");
+        PrintOpcodeReg("MOV", "E, M", opcode[0]);
         break;
     case 0x5F: 
-        printf("MOV E, A");
+        PrintOpcodeReg("MOV", "E, A", opcode[0]);
         break;
     case 0x60:
-        printf("MOV H, B");
+        PrintOpcodeReg("MOV", "H, B", opcode[0]);
         break;
     case 0x61:
-        printf("MOH H, C");
+        PrintOpcodeReg("MOV", "H, C", opcode[0]);
         break;
     case 0x62:
-        printf("MOV H, D");
+        PrintOpcodeReg("MOV", "H, D", opcode[0]);
         break;
     case 0x63:
-        printf("MOV H, E");
+        PrintOpcodeReg("MOV", "H, E", opcode[0]);
         break;
     case 0x64:
-        printf("MOV H, H");
+        PrintOpcodeReg("MOV", "H, H", opcode[0]);
         break;
     case 0x65:
-        printf("MOV H, L");
+        PrintOpcodeReg("MOV", "H, L", opcode[0]);
         break;
     case 0x66:
-        printf("MOV H, M");
+        PrintOpcodeReg("MOV", "H, M", opcode[0]);
         break;
     case 0x67:
-        printf("MOV H, A");
+        PrintOpcodeReg("MOV", "H, A", opcode[0]);
         break;
     case 0x68:
-        printf("MOV L, B");
+        PrintOpcodeReg("MOV", "L, B", opcode[0]);
         break;
     case 0x69:
-        printf("MOV L, C");
+        PrintOpcodeReg("MOV", "L, C", opcode[0]);
         break;
     case 0x6A:
-        printf("MOV L, D");
+        PrintOpcodeReg("MOV", "L, D", opcode[0]);
         break;
     case 0x6B:
-        printf("MOV L, E");
+        PrintOpcodeReg("MOV", "L, E", opcode[0]);
         break;
     case 0x6C:
-        printf("MOV L, H");
+        PrintOpcodeReg("MOV", "L, H", opcode[0]);
         break;
     case 0x6D:
-        printf("MOV L, L");
+        PrintOpcodeReg("MOV", "L, L", opcode[0]);
         break;
     case 0x6E:
-        printf("MOV L, M");
+        PrintOpcodeReg("MOV", "L, M", opcode[0]);
         break;
     case 0x6F:
-        printf("MOV L, A");
+        PrintOpcodeReg("MOV", "L, A", opcode[0]);
         break;
     case 0x70:
-        printf("MOV M, B");
+        PrintOpcodeReg("MOV", "M, B", opcode[0]);
         break;
     case 0x71:
-        printf("MOV M, C");
+        PrintOpcodeReg("MOV", "M, C", opcode[0]);
         break;
     case 0x72:
-        printf("MOV M, D");
+        PrintOpcodeReg("MOV", "M, D", opcode[0]);
         break;
     case 0x73:
-        printf("MOV M, E");
+        PrintOpcodeReg("MOV", "M, E", opcode[0]);
         break;
     case 0x74:
-        printf("MOV M, H");
+        PrintOpcodeReg("MOV", "M, H", opcode[0]);
         break;
     case 0x75:
-        printf("MOV M ,L");
+        PrintOpcodeReg("MOV", "M, L", opcode[0]);
         break;
     case 0x76:
-        printf("HLT");
+        PrintOpcode("HLT", opcode[0]);
         break;
     case 0x77:
-        printf("MOV M, A");
+        PrintOpcodeReg("MOV", "M, A", opcode[0]);
         break;
     case 0x78:
-        printf("MOV A, B");
+        PrintOpcodeReg("MOV", "A, B", opcode[0]);
         break;
     case 0x79:
-        printf("MOV A, C");
+        PrintOpcodeReg("MOV", "A, C", opcode[0]);
         break;
     case 0x7A:
-        printf("MOV A, D");
+        PrintOpcodeReg("MOV", "A, D", opcode[0]);
         break;
     case 0x7B:
-        printf("MOV A, E");
+        PrintOpcodeReg("MOV", "A, E", opcode[0]);
         break;
     case 0x7C:
-        printf("MOV A, H");
+        PrintOpcodeReg("MOV", "A, H", opcode[0]);
         break;
     case 0x7D:
-        printf("MOV A, L");
+        PrintOpcodeReg("MOV", "A, L", opcode[0]);
         break;
     case 0x7E:
-        printf("MOV A, M");
+        PrintOpcodeReg("MOV", "A, M", opcode[0]);
         break;
     case 0x7F:
-        printf("MOV A, A");
+        PrintOpcodeReg("MOV", "A, A", opcode[0]);
         break;
     case 0x80:
-        printf("ADD B");
+        PrintOpcodeReg("ADD", "B", opcode[0]);
         break;
     case 0x81:
-        printf("ADD C");
+        PrintOpcodeReg("ADD", "C", opcode[0]);
         break;
     case 0x82:
-        printf("ADD D");
+        PrintOpcodeReg("ADD", "D", opcode[0]);
         break;
     case 0x83:
-        printf("ADD E");
+        PrintOpcodeReg("ADD", "E", opcode[0]);
         break;
     case 0x84:
-        printf("ADD H");
+        PrintOpcodeReg("ADD", "H", opcode[0]);
         break;
     case 0x85:
-        printf("ADD L");
+        PrintOpcodeReg("ADD", "L", opcode[0]);
         break;
     case 0x86:
-        printf("ADD M");
+        PrintOpcodeReg("ADD", "M", opcode[0]);
         break;
     case 0x87:
-        printf("ADD A");
+        PrintOpcodeReg("ADD", "A", opcode[0]);
         break;
     case 0x88:
-        printf("ADC B");
+        PrintOpcodeReg("ADC", "B", opcode[0]);
         break;
     case 0x89:
-        printf("ADC C");
+        PrintOpcodeReg("ADC", "C", opcode[0]);
         break;
     case 0x8A:
-        printf("ADC D");
+        PrintOpcodeReg("ADC", "D", opcode[0]);
         break;
     case 0x8B:
-        printf("ADC E");
+        PrintOpcodeReg("ADC", "E", opcode[0]);
         break;
     case 0x8C:
-        printf("ADC H");
+        PrintOpcodeReg("ADC", "H", opcode[0]);
         break;
     case 0x8D:
-        printf("ADC L");
+        PrintOpcodeReg("ADC", "L", opcode[0]);
         break;
     case 0x8E:
-        printf("ADC M");
+        PrintOpcodeReg("ADC", "M", opcode[0]);
         break;
     case 0x8F:
-        printf("ADC A");
+        PrintOpcodeReg("ADC", "A", opcode[0]);
         break;
     case 0x90:
-        printf("SUB B");
+        PrintOpcodeReg("SUB", "B", opcode[0]);
         break;
     case 0x91:
-        printf("SUB C");
+        PrintOpcodeReg("SUB", "C", opcode[0]);
         break;
     case 0x92:
-        printf("SUB D");
+        PrintOpcodeReg("SUB", "D", opcode[0]);
         break;
     case 0x93:
-        printf("SUB E");
+        PrintOpcodeReg("SUB", "E", opcode[0]);
         break;
     case 0x94:
-        printf("SUB H");
+        PrintOpcodeReg("SUB", "H", opcode[0]);
         break;
     case 0x95:
-        printf("SUB L");
+        PrintOpcodeReg("SUB", "L", opcode[0]);
         break;
     case 0x96:
-        printf("SUB M");
+        PrintOpcodeReg("SUB", "M", opcode[0]);
         break;
     case 0x97:
-        printf("SUB A");
+        PrintOpcodeReg("SUB", "A", opcode[0]);
         break;
     case 0x98:
-        printf("SBB B");
+        PrintOpcodeReg("SBB", "B", opcode[0]);
         break;
     case 0x99:
-        printf("SBB C");
+        PrintOpcodeReg("SBB", "C", opcode[0]);
         break;
     case 0x9A:
-        printf("SBB D");
+        PrintOpcodeReg("SBB", "D", opcode[0]);
         break;
     case 0x9B:
-        printf("SBB E");
+        PrintOpcodeReg("SBB", "E", opcode[0]);
         break;
     case 0x9C:
-        printf("SBB H");
+        PrintOpcodeReg("SBB", "H", opcode[0]);
         break;
     case 0x9D:
-        printf("SHH L");
+        PrintOpcodeReg("SBB", "L", opcode[0]);
         break;
     case 0x9E:
-        printf("SBB M");
+        PrintOpcodeReg("SBB", "M", opcode[0]);
         break;
     case 0x9F:
-        printf("SBB A");
+        PrintOpcodeReg("SBB", "A", opcode[0]);
         break;
     case 0xA0:
-        printf("ANA B");
+        PrintOpcodeReg("ANA", "B", opcode[0]);
         break;
     case 0xA1:
-        printf("ANA C");
+        PrintOpcodeReg("ANA", "C", opcode[0]);
         break;
     case 0xA2:
-        printf("ANA D");
+        PrintOpcodeReg("ANA", "D", opcode[0]);
         break;
     case 0xA3:
-        printf("ANA E");
+        PrintOpcodeReg("ANA", "E", opcode[0]);
         break;
     case 0xA4:
-        printf("ANA H");
+        PrintOpcodeReg("ANA", "H", opcode[0]);
         break;
     case 0xA5:
-        printf("ANA L");
+        PrintOpcodeReg("ANA", "L", opcode[0]);
         break;
     case 0xA6:
-        printf("ANA M");
+        PrintOpcodeReg("ANA", "M", opcode[0]);
         break;
     case 0xA7:
-        printf("ANA A");
+        PrintOpcodeReg("ANA", "A", opcode[0]);
         break;
     case 0xA8:
-        printf("XRA B");
+        PrintOpcodeReg("XRA", "B", opcode[0]);
         break;
     case 0xA9:
-        printf("XRA C");
+        PrintOpcodeReg("XRA", "C", opcode[0]);
         break;
     case 0xAA:
-        printf("XRA D");
+        PrintOpcodeReg("XRA", "D", opcode[0]);
         break;
     case 0xAB:
-        printf("XRA E");
+        PrintOpcodeReg("XRA", "E", opcode[0]);
         break;
     case 0xAC:
-        printf("XRA H");
+        PrintOpcodeReg("XRA", "H", opcode[0]);
         break;
     case 0xAD:
-        printf("XRA L");
+        PrintOpcodeReg("XRA", "L", opcode[0]);
         break;
     case 0xAE:
-        printf("XRA M");
+        PrintOpcodeReg("XRA", "M", opcode[0]);
         break;
     case 0xAF:
-        printf("XRA A");
+        PrintOpcodeReg("XRA", "A", opcode[0]);
         break;
     case 0xB0:
-        printf("ORA B");
+        PrintOpcodeReg("ORA", "B", opcode[0]);
         break;
     case 0xB1:
-        printf("ORA C");
+        PrintOpcodeReg("ORA", "C", opcode[0]);
         break;
     case 0xB2:
-        printf("ORA D");
+        PrintOpcodeReg("ORA", "D", opcode[0]);
         break;
     case 0xB3:
-        printf("ORA E");
+        PrintOpcodeReg("ORA", "E", opcode[0]);
         break;
     case 0xB4:
-        printf("ORA H");
+        PrintOpcodeReg("ORA", "H", opcode[0]);
         break;
     case 0xB5:
-        printf("ORA L");
+        PrintOpcodeReg("ORA", "L", opcode[0]);
         break;
     case 0xB6:
-        printf("ORA M");
+        PrintOpcodeReg("ORA", "M", opcode[0]);
         break;
     case 0xB7:
-        printf("ORA A");
+        PrintOpcodeReg("ORA", "A", opcode[0]);
         break;
     case 0xB8:
-        printf("CMP B");
+        PrintOpcodeReg("CMP", "B", opcode[0]);
         break;
     case 0xB9:
-        printf("CMP C");
+        PrintOpcodeReg("CMP", "C", opcode[0]);
         break;
     case 0xBA:
-        printf("CMP D");
+        PrintOpcodeReg("CMP", "D", opcode[0]);
         break;
     case 0xBB:
-        printf("CMP E");
+        PrintOpcodeReg("CMP", "E", opcode[0]);
         break;
     case 0xBC:
-        printf("CMP H");
+        PrintOpcodeReg("CMP", "H", opcode[0]);
         break;
     case 0xBD:
-        printf("CMP L");
+        PrintOpcodeReg("CMP", "L", opcode[0]);
         break;
     case 0xBE:
-        printf("CMP M");
+        PrintOpcodeReg("CMP", "M", opcode[0]);
         break;
     case 0xBF:
-        printf("CMP A");
+        PrintOpcodeReg("CMP", "A", opcode[0]);
         break;
     case 0xC0:
-        printf("RNZ");
+        PrintOpcode("RNZ", opcode[0]);
         break;
     case 0xC1:
-        printf("POP B");
+        PrintOpcodeReg("POP", "B", opcode[0]);
         break;
     case 0xC2:
-        printf("JNZ $%02x%02x", opcode[2], opcode[1]); 
+        PrintMultipleOperands("JNZ", opcode, 3);
         opBytes = 3;
         break;
     case 0xC3:
-        printf("JMP $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JMP", opcode, 3);
         opBytes = 3;
         break;
     case 0xC4:
-        printf("CNZ $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CNZ", opcode, 3);
         opBytes = 3;
         break;
     case 0xC5:
-        printf("PUSH B");
+        PrintOpcodeReg("PUSH", "B", opcode[0]);
         break;
-    case 0xC6: ///////////////////
-        printf("ADI #0x%02x", opcode[1]);
+    case 0xC6:
+        PrintMultipleOperands("ADI", opcode, 2);
         opBytes = 2;
         break;
     case 0xC7:
-        printf("RST 0");
+        PrintOpcodeReg("RST", "0", opcode[0]);
         break;
     case 0xC8:
-        printf("RZ");
+        PrintOpcode("RZ", opcode[0]);
         break;
     case 0xC9:
-        printf("RET");
+        PrintOpcode("RET", opcode[0]);
         break;
     case 0xCA:
-        printf("JZ $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JZ", opcode, 3);
         opBytes = 3;
         break;
     case 0xCB:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0xCC:
-        printf("CZ $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CZ", opcode, 3);
         opBytes = 3;
         break;
     case 0xCD:
-        printf("CALL $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CALL", opcode, 3);
         opBytes = 3;
         break;
-    case 0xCE: //////////////
-        printf("ACI #$%02x", opcode[1]);
+    case 0xCE:
+        PrintMultipleOperands("ACI", opcode, 2);
         opBytes = 2;
         break;
     case 0xCF:
-        printf("RST 1");
+        PrintOpcodeReg("RST", "1", opcode[0]);
         break;
     case 0xD0:
-        printf("RNC");
+        PrintOpcode("RNC", opcode[0]);
         break;
     case 0xD1:
-        printf("POP D");
+        PrintOpcodeReg("POP", "D", opcode[0]);
         break;
     case 0xD2:
-        printf("JNC $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JNC", opcode, 3);
         opBytes = 3;
         break;
-    case 0xD3: /////////////
-        printf("OUT #$%02x", opcode[1]);
+    case 0xD3:
+        PrintMultipleOperands("OUT", opcode, 2);
+        printf("OUT $%02x", opcode[1]);
         opBytes = 2;
         break;
     case 0xD4:
-        printf("CNC $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CNC", opcode, 3);
         opBytes = 3;
         break;
     case 0xD5:
-        printf("PUSH D");
+        PrintOpcodeReg("PUSH", "D", opcode[0]);
         break;
-    case 0xD6: /////////////
-        printf("SUI #$%02x", opcode[1]);
+    case 0xD6:
+        PrintMultipleOperands("SUI", opcode, 2);
         opBytes = 2;
         break;
     case 0xD7:
-        printf("RST 2");
+        PrintOpcodeReg("RST", "2", opcode[0]);
         break;
     case 0xD8:
-        printf("RC");
+        PrintOpcode("RC", opcode[0]);
         break;
     case 0xD9:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
     case 0xDA:
-        printf("JC $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JC", opcode, 3);
         opBytes = 3;
         break;
-    case 0xDB: //////////////
-        printf("IN #$%02x", opcode[1]);
+    case 0xDB:
+        PrintMultipleOperands("IN", opcode, 2);
         opBytes = 2;
         break;
     case 0xDC:
-        printf("CC $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CC", opcode, 2);
         opBytes = 3;
         break;
     case 0xDD:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
-    case 0xDE: ///////////////////
-        printf("SBI #$%02x", opcode[1]);
+    case 0xDE:
+        PrintMultipleOperands("SBI", opcode, 2);
         opBytes = 2;
         break;
     case 0xDF:
-        printf("RST 3");
+        PrintOpcodeReg("RST", "3", opcode[0]);
         break;
     case 0xE0:
-        printf("RPO");
+        PrintOpcode("RPO", opcode[0]);
         break;
     case 0xE1:
-        printf("POP H");
+        PrintOpcodeReg("POP", "H", opcode[0]);
         break;
     case 0xE2:
-        printf("JPO $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JPO", opcode, 3);
         opBytes = 3;
         break;
     case 0xE3:
-        printf("XTHL");
+        PrintOpcode("XTHL", opcode[0]);
         break;
     case 0xE4:
-        printf("CPO $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CPO", opcode, 3);
         opBytes = 3;
         break;
     case 0xE5:
-        printf("PUSH H");
+        PrintOpcodeReg("PUSH", "H", opcode[0]);
         break;
-    case 0xE6: ////////////////////////
-        printf("ANI #$%02X", opcode[1]);
+    case 0xE6:
+        PrintMultipleOperands("ANI", opcode, 2);
         opBytes = 2;
         break;
     case 0xE7:
-        printf("RST 4");
+        PrintOpcodeReg("RST", "4", opcode[0]);
         break;
     case 0xE8:
-        printf("RPE");
+        PrintOpcode("RPE", opcode[0]);
         break;
     case 0xE9:
-        printf("PCHL");
+        PrintOpcode("PCHL", opcode[0]);
         break;
     case 0xEA:
-        printf("JPE $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JPE", opcode, 3);
         opBytes = 3;
         break;
     case 0xEB:
-        printf("XCHG");
+        PrintOpcode("XCHG", opcode[0]);
         break;
     case 0xEC:
-        printf("CPE $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CPE", opcode, 3);
         opBytes = 3;
         break;
     case 0xED:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
-    case 0xEE: //////////////////
-        printf("XRI #$%02X", opcode[1]);
+    case 0xEE:
+        PrintMultipleOperands("XRI", opcode, 2);
         opBytes = 2;
         break;
     case 0xEF:
-        printf("RST 5");
+        PrintOpcodeReg("RST", "5", opcode[0]);
         break;
     case 0xF0:
-        printf("RP");
+        PrintOpcode("RP", opcode[0]);
         break;
     case 0xF1:
-        printf("POP PSW");
+        PrintOpcodeReg("POP", "PSW", opcode[0]);
         break;
     case 0xF2:
-        printf("JP $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JP", opcode, 3);
         opBytes = 3;
         break;
     case 0xF3:
-        printf("DI");
+        PrintOpcode("DI", opcode[0]);
         break;
     case 0xF4:
-        printf("CP $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CP", opcode, 3);
         opBytes = 3;
         break;
     case 0xF5:
-        printf("PUSH PSW");
+        PrintOpcodeReg("PUSH", "PSW", opcode[0]);
         break;
-    case 0xF6: /////////////////
-        printf("ORI #$%02x", opcode[1]);
+    case 0xF6:
+        PrintMultipleOperands("OR!", opcode, 2);
         opBytes = 2;
         break;
     case 0xF7:
-        printf("RST 6");
+        PrintOpcodeReg("RST", "6", opcode[0]);
         break;
     case 0xF8:
-        printf("RM");
+        PrintOpcode("RM", opcode[0]);
         break;
     case 0xF9:
-        printf("SPHL");
+        PrintOpcode("SPHL", opcode[0]);
         break;
     case 0xFA:
-        printf("JM $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("JM", opcode, 3);
         opBytes = 3;
         break;
     case 0xFB:
-        printf("EI");
+        PrintOpcode("EI", opcode[0]);
         break;
     case 0xFC:
-        printf("CM $%02x%02x", opcode[2], opcode[1]);
+        PrintMultipleOperands("CM", opcode, 3);
         opBytes = 3;
         break;
     case 0xFD:
-        printf("NOP");
+        PrintOpcode("NOP", opcode[0]);
         break;
-    case 0xFE: /////////////////
-        printf("CPI #$%02x", opcode[1]);
+    case 0xFE:
+        PrintMultipleOperands("CPI", opcode, 2);
         opBytes = 2;
         break;
     case 0xFF:
-        printf("RST 7");
+        PrintOpcodeReg("RST", "7", opcode[0]);
         break;
     default:
-        printf(UNDEFINED_OP_CODE);
+        PrintOpcode(UNDEFINED_OP_CODE, opcode[0]);
         break;
     }
 
@@ -859,4 +860,32 @@ void ReadFile(State8080* state, const char* filename, uint32_t offset)
     uint8_t* buf = &state->memory[offset];
     fread(buf, filesize, 1, fp);
     fclose(fp);
+}
+
+void PrintOpcode(const char* opcodeStr, const unsigned char opcode)
+{
+    printf("%02x\t\t\t\t\t%s\t\t\t", opcode, opcodeStr);
+}
+
+void PrintOpcodeReg(const char* opcodeStr, const char* reg, const unsigned char opcode)
+{
+    printf("%02x\t\t\t\t\t%s\t\t\t%s", opcode, opcodeStr, reg);
+}
+
+void PrintMultipleOperands(const char* opcodeStr, const unsigned char* opcodes, int opCount)
+{
+    if (opCount == 2) {
+        printf("%02x %02x\t\t\t\t%s\t\t\t$%02x", opcodes[0], opcodes[1], opcodeStr, opcodes[1]);
+    } else if (opCount == 3) {
+        printf("%02x %02x %02x\t\t%s\t\t\t$%02x%02x", opcodes[0], opcodes[1], opcodes[2], opcodeStr, opcodes[1], opcodes[2]);
+    }
+}
+
+void PrintRegMultipleOperands(const char* opcodeStr, const unsigned char* reg, const unsigned char* opcodes, int opCount)
+{
+    if (opCount == 2) {
+        printf("%02x %02x\t\t\t\t%s\t\t\t%s, $%02x", opcodes[0], opcodes[1], opcodeStr, reg, opcodes[1]);
+    } else if (opCount == 3) {
+        printf("%02x %02x %02x\t\t%s\t\t\t%s, $%02x%02x", opcodes[0], opcodes[1], opcodes[2], opcodeStr, reg, opcodes[1], opcodes[2]);
+    }
 }

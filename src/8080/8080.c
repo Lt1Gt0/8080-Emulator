@@ -145,7 +145,21 @@ int Emulate8080p(State8080* state)
         mvi(state, &state->h, opcode[1]);
         break;
     case 0x27: // DAA
-        UndefinedInstruction(state);
+        {
+            uint8_t lsb = state->a & 0xF;
+            uint8_t msb = (state->a >> 4) & 0xF;
+
+            if (lsb > 9 || state->ac & 1) {
+                state->ac += 6;
+            }
+
+            if (msb > 9 || state->cy & 1) {
+                msb += 6;
+                state->a = (msb << 4) | (lsb);
+            }
+
+            /* STILL NEED TO EFFECT AC */
+        }
         break;
     case 0x28: // NOP
         break;
@@ -171,7 +185,7 @@ int Emulate8080p(State8080* state)
         mvi(state, &state->l, opcode[1]);
         break;
     case 0x2F: // CMA
-        state->a = ~(state->a); //I think this is right;
+        state->a = ~state->a;
         break;
     case 0x30: // NOP
         break;
@@ -237,7 +251,7 @@ int Emulate8080p(State8080* state)
         mvi(state, &state->a, opcode[1]);
         break;
     case 0x3F: // CMC
-        state->cy = ~(state->cy);
+        state->cy = ~state->cy;
         break;
     case 0x40: // MOV B, B
         // Set register to itself so just break
