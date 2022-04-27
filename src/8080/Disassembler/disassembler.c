@@ -877,7 +877,7 @@ void PrintMultipleOperands(const char* opcodeStr, const unsigned char* opcodes, 
     if (opCount == 2) {
         printf("%02x %02x\t\t\t\t%s\t\t\t$%02x", opcodes[0], opcodes[1], opcodeStr, opcodes[1]);
     } else if (opCount == 3) {
-        printf("%02x %02x %02x\t\t%s\t\t\t$%02x%02x", opcodes[0], opcodes[1], opcodes[2], opcodeStr, opcodes[1], opcodes[2]);
+        printf("%02x %02x %02x\t\t%s\t\t\t$%02x%02x", opcodes[0], opcodes[1], opcodes[2], opcodeStr, opcodes[2], opcodes[1]);
     }
 }
 
@@ -886,6 +886,6 @@ void PrintRegMultipleOperands(const char* opcodeStr, const unsigned char* reg, c
     if (opCount == 2) {
         printf("%02x %02x\t\t\t\t%s\t\t\t%s, $%02x", opcodes[0], opcodes[1], opcodeStr, reg, opcodes[1]);
     } else if (opCount == 3) {
-        printf("%02x %02x %02x\t\t%s\t\t\t%s, $%02x%02x", opcodes[0], opcodes[1], opcodes[2], opcodeStr, reg, opcodes[1], opcodes[2]);
+        printf("%02x %02x %02x\t\t%s\t\t\t%s, $%02x%02x", opcodes[0], opcodes[1], opcodes[2], opcodeStr, reg, opcodes[2], opcodes[1]);
     }
 }

@@ -3,7 +3,7 @@
 #define __MACHINE_H
 
 #include <stdint.h>
-#include "8080/structs.h"
+#include "8080/cpu.h"
 
 uint8_t inb(State8080* state, uint8_t port);
 void outb(State8080* state, uint8_t port);

@@ -2,7 +2,7 @@
 #ifndef __DISASSEMBLER_H
 #define __DISASSEMBLER_H
 
-#include "8080/8080.h"
+#include "8080/cpu.h"
 
 #include <stdio.h>
 #include <stdlib.h>

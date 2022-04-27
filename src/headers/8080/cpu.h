@@ -1,15 +1,16 @@
+#pragma once
 #ifndef __STRUCTS_H
 #define __STRUCTS_H
 #include <stdint.h>
 
 //Might move these defines to spaceinvaders.h
-#define MEMORY_SIZE 0x4000
-#define ROM_SIZE 0x2000
-#define STACK_START 0x2400
-#define PROGRAM_START 0x0000
+#define MEMORY_SIZE     0x4000
+#define ROM_SIZE        0x2000
+#define STACK_START     0x2400
+#define PROGRAM_START   0x0000
 
-#define MSB_UINT8   0x80
-#define MSB_UINT16  0x8000 
+#define MSB_UINT8       0x80
+#define MSB_UINT16      0x8000 
 
 typedef enum {
     NZ  = 0x00, // Not Zero (Z = 0) 

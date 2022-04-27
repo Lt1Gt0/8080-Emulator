@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "structs.h"
-#include "instuctions.h"
+#include "cpu.h"
+#include "opcodes.h"
 #include "Disassembler/disassembler.h"
 
 State8080* Init8080();
