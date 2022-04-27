@@ -1,11 +1,146 @@
 #pragma once
-#ifndef __INSTRUCTIONS_H
-#define __INSTRUCTIONS_H
+#ifndef __OPCODES_H
+#define __OPCODES_H
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
+
+typedef int (*OP)(State8080* state, UNUSED uint16_t basePC, uint8_t opcode);
+
+typedef struct {
+    OP      targetFunc; // Pointer to function wrapper
+    uint8_t cycleCount; // Total amount of cycles per opcode
+    uint8_t size;       // Size of opcode (1, 2, 3 bytes typically)
+} opcode_8080;
+
+uint8_t CheckCondition(State8080* state, ConditionFlags identifier);
+
+void SetFlag(State8080* state, uint32_t flagState, uint8_t flags);
+// TODO: Add function for Auxiliary carry flag
+
+int UNDEFINED_OPCODE(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode);
+
+/*---- DATA TRANSFER ----*/
+
+void MOV();
+
+void MVI();
+
+void LXI();
+
+void LDA();
+
+void STA();
+
+void LHLD();
+
+void SHLD();
+
+void LDAX();
+
+void STAX();
+
+void XCHG();
+
+
+/*---- ARITHMETIC ----*/
+
+// ADD_REG, ADD_MEM, ADD_IMM (ADI)
+void ADD();
+
+// ADC_REG, ADC_MEM, ADC_IMM (ACI)
+void ADC();
+
+// SUB_REG, SUB_MEM, SUB_IMM (SUI)
+void SUB();
+
+// SBB_REG, SBB_MEM, SBB_IMM (SBI)
+void SBB();
+
+// INR_REG, INR_MEM
+void INR();
+
+// DCR_REG, DCR_MEM
+void DCR();
+
+// INX_RP
+void INX();
+
+// DCX_RP
+void DCX();
+
+// DAD_RP
+void DAD();
+
+// DAA
+void DAA();
+
+/*---- LOGICAL ----*/
+
+// ANA_REG, ANA_IMM (ANI)
+void ANA();
+
+// XRA_REG, XRA_IMM (XRI)
+void XRA();
+
+// ORA_REG, ORA_IMM (ORI)
+void ORA();
+
+// CMP_REG, CMP_MEM, CMP_IMM (CPI)
+void CMP();
+
+void RLC();
+
+void RRC();
+
+void RAL();
+
+void RAR();
+
+void CMA();
+
+void CMC();
+
+void STC();
+
+/*---- BRANCH ----*/
+
+void JMP();
+
+void RET();
+
+void RST();
+
+void PCHL();
+
+/*---- STACK I/O MACHINE CONTROL ----*/
+
+// PUSH_RP PUSH_PSW
+void PUSH();
+
+// POP_RP, POP_PSW
+void POP();
+
+void XTHL();
+
+void SPHL();
+
+void IN();
+
+void OUT();
+
+void EI();
+
+void DI();
+
+void HLT();
+
+void NOP();
+
+
+
 
 // void UndefinedInstruction(State8080* state);
 

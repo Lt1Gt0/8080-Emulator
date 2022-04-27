@@ -3,6 +3,9 @@
 #define __STRUCTS_H
 #include <stdint.h>
 
+// I dont feel like typing __attribute__((unused)) all the time
+#define UNUSED __attribute__((unused))
+
 //Might move these defines to spaceinvaders.h
 #define MEMORY_SIZE     0x4000
 #define ROM_SIZE        0x2000

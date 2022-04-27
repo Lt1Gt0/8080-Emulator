@@ -10,7 +10,6 @@
 #include "Disassembler/disassembler.h"
 
 State8080* Init8080();
-
 int Emulate8080p(State8080* state);
 
 #endif // __8080_H
