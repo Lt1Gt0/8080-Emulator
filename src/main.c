@@ -1,7 +1,9 @@
 #include "8080/8080.h"
-#include "8080/Disassembler/disassembler.h"
+#include "8080/memory.h"
 #include "SpaceInvaders/spaceinvaders.h"
-#include <stdint.h>
+// #include "8080/Disassembler/disassembler.h"
+// #include "Debug/debug.h"
+
 
 int main(int argc, char** argv)
 {
@@ -13,6 +15,11 @@ int main(int argc, char** argv)
     ReadFile(state, "Invaders/invaders.g", 0x800 + ROM_OFFSET); 
     ReadFile(state, "Invaders/invaders.f", 0x1000 + ROM_OFFSET); 
     ReadFile(state, "Invaders/invaders.e", 0x1800 + ROM_OFFSET); 
+
+    for (int i = 0; i < 0x2000; i++) {
+        // Emulate8080p(state);
+        ExecuteInstruction(state);
+    }
 
     // while (running == 0) {
         // running = Emulate8080p(state);

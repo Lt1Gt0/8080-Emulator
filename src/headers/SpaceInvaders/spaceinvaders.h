@@ -4,6 +4,11 @@
 
 #include <stdint.h>
 // Defines based off of information about space invader rom
+#define MEMORY_SIZE     0x4000
+#define ROM_SIZE        0x2000
+#define STACK_START     0x2400
+#define PROGRAM_START   0x0000
+
 #define ALIGNED_PREFIX  (1 << 16) // Prefix to get 16-bit aligned memory
 #define ROM_OFFSET      0x00
 #define VRAM_OFFSET     0x2400

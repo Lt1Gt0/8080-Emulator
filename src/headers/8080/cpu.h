@@ -1,16 +1,10 @@
 #pragma once
-#ifndef __STRUCTS_H
-#define __STRUCTS_H
+#ifndef __CPU8080_H
+#define __CPU8080_H
 #include <stdint.h>
 
 // I dont feel like typing __attribute__((unused)) all the time
 #define UNUSED __attribute__((unused))
-
-//Might move these defines to spaceinvaders.h
-#define MEMORY_SIZE     0x4000
-#define ROM_SIZE        0x2000
-#define STACK_START     0x2400
-#define PROGRAM_START   0x0000
 
 #define MSB_UINT8       0x80
 #define MSB_UINT16      0x8000 
@@ -24,7 +18,7 @@ typedef enum {
     PE  = 0x05, // Parity Even (P = 1)
     P   = 0x06, // Plus (S = 0)
     M   = 0x07  // Minus (S = 1)
-}ConditionFlags;
+} ConditionFlags;
 
 // from the 8080 Manual, Flag bits will be check
 // by shifting bits like such, the bits are in order
@@ -35,7 +29,7 @@ typedef enum {
     AUX_FLAG    = 1 << 3,
     PARITY_FLAG = 1 << 5,
     CARRY_FLAG  = 1 << 7
-}flagBits;
+} flagBits;
 
 typedef struct State8080 {
     
@@ -93,6 +87,6 @@ typedef struct State8080 {
     uint8_t int_enable; // interrupts enabled
     uint8_t int_pend; // Pending Interrupts 
 
-}State8080;
+} State8080;
 
-#endif // __STRUCTS_H
+#endif // __CPU8080_H

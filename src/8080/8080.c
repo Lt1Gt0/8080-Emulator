@@ -1,4 +1,7 @@
 #include "8080/8080.h"
+#include "8080/opcodes.h"
+#include "Debug/debug.h"
+// #include "8080/Disassembler/disassembler.h"
 
 State8080* Init8080()
 {
@@ -9,15 +12,21 @@ State8080* Init8080()
 
 int Emulate8080p(State8080* state)
 {
-    uint16_t ans, offset;
-    uint8_t psw, tmp;
+    // Check for intterupts
+
+    // Proceed with opcode
+    // PRINT_PROC_STATE(state);
+    return 0;
+
+    // uint16_t ans, offset;
+    // uint8_t psw, tmp;
 
     // Check if interrupt is enabled or pending 
 
-    DecodeInstruction(state->memory, state->pc);
-    unsigned char* opcode = &state->memory[state->pc];
+    // DecodeInstruction(state->memory, state->pc);
+    // unsigned char* opcode = &state->memory[state->pc];
 
-    state->pc += 1;
+    // state->pc += 1;
     // switch (*opcode) {
     // case 0x00: // NOP
     //     break;
@@ -902,5 +911,17 @@ int Emulate8080p(State8080* state)
     // }
 
     // PrintProcState(state);
+    // return 0;
+}
+
+int ExecuteInstruction(State8080* state)
+{
+    Opcode8080 currentOpcode = opcodeLookUp[state->memory[state->pc]];
+    currentOpcode.targetFunc;
+
+    fprintf(stdout, "OPCODE SIZE: %d", currentOpcode.size);
+    PRINT_PROC_STATE(state);
+
+    state->pc += currentOpcode.size;
     return 0;
 }
