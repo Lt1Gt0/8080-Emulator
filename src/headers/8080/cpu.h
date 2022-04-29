@@ -7,23 +7,31 @@
 // I dont feel like typing __attribute__((unused)) all the time
 #define UNUSED __attribute__((unused))
 
-#define MSB_UINT8       0x80
-#define MSB_UINT16      0x8000 
+// #define MSB_UINT8   0x80
+// #define MSB_UINT16  0x8000 
 
 typedef enum {
-    NZ  = 0x00, // Not Zero (Z = 0) 
-    Z   = 0x01, // Zero (Z = 1)
-    NC  = 0x02, // No Carry (CY = 0)
-    C   = 0x03, // Carry (CY = 1)
-    PO  = 0x04, // Parity Odd (P = 0)
-    PE  = 0x05, // Parity Even (P = 1)
-    P   = 0x06, // Plus (S = 0)
-    M   = 0x07  // Minus (S = 1)
+    NZ  = 0x00, // Not Zero (Z = 0) (000)
+    Z   = 0x01, // Zero (Z = 1) (001)
+    NC  = 0x02, // No Carry (CY = 0) (010)
+    C   = 0x03, // Carry (CY = 1) (011)
+    PO  = 0x04, // Parity Odd (P = 0) (100)
+    PE  = 0x05, // Parity Even (P = 1) (101)
+    P   = 0x06, // Plus (S = 0) (110)
+    M   = 0x07  // Minus (S = 1) (111)
 } ConditionFlags;
+
+typedef struct {
+    uint8_t s;
+    uint8_t z;
+    uint8_t ac;
+    uint8_t p;
+    uint8_t cy;
+} ProcStatusWord;
 
 // from the 8080 Manual, Flag bits will be check
 // by shifting bits like such, the bits are in order
-// inside of the state struct for PSW
+// inside of the state struct for ProcStateWord
 typedef enum {
     SIGN_FLAG   = 1 << 0,
     ZERO_FLAG   = 1 << 1,
@@ -80,7 +88,7 @@ typedef struct State8080 {
             uint8_t pad3    : 1; // Padding
             uint8_t cy      : 1; // Carry
         };
-        uint8_t PSW; // Program Status Word
+        uint8_t PSW; // Processor Status Word
     };
 
     VirtualMemory   memory; // Memory location

@@ -64,12 +64,97 @@ uint16_t* ShortRegRef(State8080* state, uint8_t ident)
 
 uint8_t CheckCondition(State8080* state, ConditionFlags identifier)
 {
+    switch (identifier) {
+    case NZ:
+        if (!state->z)
+            return 1;
+        return 0;
+    case Z:
+        if (state->z)
+            return 1;
+        return 0; 
+    case NC:
+        if (!state->cy)
+            return 1;
+        return 0;
+    case C:
+        if (state->cy)
+            return 1;
+        return 0;
+    case PO:
+        if (!state->p)
+            return 1;
+        return 0;
+    case PE:
+        if (state->p)
+            return 1;
+        return 0;
+    case P:
+        if (!state->s)
+            return 1;
+        return 0;
+    case M:
+        if (state->s)
+            return 1;
+        return 0;
+    default: // Should not check ever
+        fprintf(stderr, "Undefined Flag Identifier - %d", identifier);
+        exit(-1);
+    }
+}
+
+/* This wont do anything to affect the AC flag */
+void SetFlag(State8080* state, uint32_t stateFinal, uint8_t flags)
+{
+    if (flags & SIGN_FLAG) {
+        // Check for sign in bit in the first 8 bits of stateFinal
+        state->s = (stateFinal & 0x80) ? 1 : 0; 
+    }
+
+    if (flags & ZERO_FLAG) {
+        // Check the first 8 bits to see if any are, if so z = 0
+        state->z = (stateFinal & 0xFF) ? 0 : 1;
+    }
+
+    if (flags & AUX_FLAG)
+        // I dont know what do for AUX right now so I will leave it unaffected
+        fprintf(stderr, "Unable to affect flag: Auxiliary Carry");
+
+    if (flags & PARITY_FLAG) {
+        uint8_t check = stateFinal & 0xFF;
+        int totalBits = 0;
+        
+        for (int i = 0; i < 8; i++) {
+            if (check & 1)
+                totalBits++;
+            check >>= 1;
+        }
+
+        // If totalBits is odd, P = 0
+        state->p = (totalBits & 1) ? 0 : 1;
+    }
+
+    if (flags & CARRY_FLAG) {
+        // If the bit past the 8 bit limit is on, set cy = 1
+        state->cy = (stateFinal & 0x100) ? 1 : 0;
+    }
 
 }
 
-void SetFlag(State8080* state, uint32_t flagState, uint8_t flags)
+uint8_t PackPSW(State8080* state)
 {
+    uint8_t packedPSW;
 
+    packedPSW |= state->s; 
+
+    return packedPSW;
+}
+
+ProcStatusWord UnpackPSW(State8080* State)
+{
+    ProcStatusWord psw;
+
+    return psw;
 }
 
 // TODO: Add function for Auxiliary carry flag
@@ -82,6 +167,7 @@ int UNDEFINED_OPCODE(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uin
 
 /*---- DATA TRANSFER ----*/
 
+// Flags: None
 int MOV(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     // get the middle(ish) bits of the opcode, then shift them to the very right to get the dst identifier
@@ -97,6 +183,7 @@ int MOV(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     return 1;
 }
 
+// Flags: None
 int MVI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     uint8_t dstIdentifier = (0x38 & opcode) >> 3;
@@ -107,6 +194,7 @@ int MVI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     return 1;
 }
 
+// Flags: None
 int LXI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     uint8_t dstIdentifier = (0x30 & opcode) >> 4;
@@ -117,45 +205,52 @@ int LXI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     return 1;
 }
 
+// Flags: None
 int LDA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int STA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int LHLD(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int SHLD(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int LDAX(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int STAX(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int XCHG(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
-
 /*---- ARITHMETIC ----*/
 
-// ADD_REG, ADD_MEM,
+// ADD_REG, ADD_MEM
+// Flags: Z, S, P, CY, AC
 int ADD(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     uint8_t regIdentifier = (0x38 & opcode) >> 3;
@@ -166,6 +261,7 @@ int ADD(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 }
 
 // ADD_IMM
+// Flags: Z, S, P, CY, AC
 int ADI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint8_t imm = MemRead(&state->memory, state->pc + 1);
@@ -175,76 +271,88 @@ int ADI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 }
 
 // ADC_REG, ADC_MEM
+// Flags: Z, S, P, CY, AC
 int ADC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: Z, S, P, CY, AC
 int ACI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // SUB_REG, SUB_MEM
+// Flags: Z, S, P, CY, AC
 int SUB(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     // Forgot I dont have flags setup
     // uint8_t regIdentifier = (0x38 & opcode) >> 3;
     // uint8_t* reg = ByteRegRef(state, regIdentifier);
     // state->a -= *reg;
-    PRINT_DECOMPILED(basePC, "SUB r(%X)", regIdentifier);
+    // PRINT_DECOMPILED(basePC, "SUB r(%X)", regIdentifier);
     return 1;
 }
 
 // SUB_IMM
+// Flags: Z, S, P, CY, AC
 int SUI(State8080* state,UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-    uint8_t imm = MemRead(&state->memory, state->)
+    // uint8_t imm = MemRead(&state->memory, state->)
 }
 
 // SBB_REG, SBB_MEM
+// Flags: Z, S, P, CY, AC
 int SBB(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // SBB_IMM
+// Flags: Z, S, P, CY, AC
 int SBI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // INR_REG, INR_MEM
+// Flags: Z, S, P, AC
 int INR(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // DCR_REG, DCR_MEM
+// Flags: Z, S, P, AC
 int DCR(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // INX_RP
+// Flags: None
 int INX(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // DCX_RP
+// Flags: None
 int DCX(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // DAD_RP
+// Flags: CY
 int DAD(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // DAA
+// Flags: Z, S, P, CY, AC
 int DAA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
@@ -253,82 +361,105 @@ int DAA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 /*---- LOGICAL ----*/
 
 // ANA_REG
+// Flags: Z, S, P, CY, AC
+// (CY flag is cleared)
 int ANA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // ANA_IMM
+// Flags: Z, S, P, CY, AC
+// (CY and AC flag is cleared)
 int ANI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // XRA_REG
+// Flags: Z, S, P, CY, AC
+// (CY and AC flags are cleared)
 int XRA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // XRA_IMM
+// Flags: Z, S, P, CY, AC
+// (CY and AC flags are cleared)
 int XRI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // ORA_REG
+// Flags: Z, S, P, CY, AC
+// (CY and AC flags are cleared)
 int ORA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // ORA_IMM
+// Flags: Z, S, P, CY, AC
+// (CY and AC flags are cleared)
 int ORI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // CMP_REG, CMP_MEM
+// Flags: Z, S, P, CY, AC
+// (Z = 1 if (A) = (r). CY = 1 if (A) < (r))
 int CMP(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Flags: Z, S, P, CY, AC
+// (Z = 1 if (A) = (byte 2). CY = 1 if (A) < (byte 2))
 int CPI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: CY
 int RLC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: CY
 int RRC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: CY
 int RAL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: CY
 int RAR(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int CMA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: CY
 int CMC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: CY
 int STC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
@@ -336,45 +467,71 @@ int STC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 
 /*---- BRANCH ----*/
 
+/*
+NZ -> not zero (Z = 0) (000)
+Z -> zero (Z = 1) (001)
+NC -> no carry (CY = 0) (010)
+C -> carry (CY = 1) (011)
+PO -> parity odd (P = 0) (100)
+PE -> parity even (P = 1) (101)
+P -> plus (S = 0) (110)
+M -> minus (S = 1) (111)
+
+All of this is stored in the cpu as the ConditionFlags enum
+*/
+
 // JMP without conditions
+// Flags: None
 int JMP(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // JMP with conditions
+// Flags: None
 int JMPCON(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int CALL(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Condition Call
+// Flags: None
 int CCON(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
 // RET with(out) conditions
+// Flags: Z, S, P, CY, AC
 int RET(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     // PRINT_DECOMPILED(basePC, "RET", NULL);
     return 1;
 }
 
-int RCON(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
+
+// Conditional Return
+// Flags: None
+int RETCON(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Restart
+// Flags: Nones
 int RST(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
 
 }
 
+// Jump H and L indirect -> move H and L to PC
+// Flags: None
 int PCHL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
@@ -383,52 +540,67 @@ int PCHL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 /*---- STACK I/O MACHINE CONTROL ----*/
 
 // PUSH_RP PUSH_PSW
+// Flags: None
 int PUSH(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
 // POP_RP, POP_PSW
+// Flags: None
 int POP(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Exchange stack top with HL
+// Flags: None
 int XTHL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Move HL to SP
+// Flags: None
 int SPHL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int IN(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int OUT(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Enable Interrupts
+// Flags: None
 int EI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Disable Interrupts
+// Flags: None
 int DI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Halt
+// Flags: None
 int HLT(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
 
 }
 
+// Flags: None
 int NOP(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     PRINT_DECOMPILED(basePC, "%s\n", "NOP");
@@ -629,7 +801,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xBD] = {CMP, 4, 1},
     [0xBE] = {CMP, 4, 1},
     [0xBF] = {CMP, 4, 1},
-    [0xC0] = {RCON, 11, 1},
+    [0xC0] = {RETCON, 11, 1},
     [0xC1] = {POP, 10, 1},
     [0xC2] = {JMPCON, 10, 3},
     [0xC3] = {JMP, 10, 3},
@@ -637,7 +809,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xC5] = {PUSH, 11, 1},
     [0xC6] = {ADI, 7, 2},
     [0xC7] = {RST, 11, 1},
-    [0xC8] = {RCON, 11, 1},
+    [0xC8] = {RETCON, 11, 1},
     [0xC9] = {RET, 10, 1},
     [0xCA] = {JMPCON, 10, 3},
     [0xCB] = {JMP, 10, 3},
@@ -645,7 +817,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xCD] = {CALL, 17, 3},
     [0xCE] = {ACI, 7, 2},
     [0xCF] = {RST, 11, 1},
-    [0xD0] = {RCON, 11, 1},
+    [0xD0] = {RETCON, 11, 1},
     [0xD1] = {POP, 10, 1},
     [0xD2] = {JMPCON, 10, 3},
     [0xD3] = {OUT, 10, 2},
@@ -653,7 +825,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xD5] = {PUSH, 11, 1},
     [0xD6] = {SUI, 7, 2},
     [0xD7] = {RST, 11, 1},
-    [0xD8] = {RCON, 11, 1},
+    [0xD8] = {RETCON, 11, 1},
     [0xD9] = {RET, 10, 1},
     [0xDA] = {JMPCON, 10, 3},
     [0xDB] = {IN, 10, 2},
@@ -661,7 +833,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xDD] = {CALL, 17, 3},
     [0xDE] = {SBI, 7, 2},
     [0xDF] = {RST, 11, 1},
-    [0xE0] = {RCON, 11, 1},
+    [0xE0] = {RETCON, 11, 1},
     [0xE1] = {POP, 10, 1},
     [0xE2] = {JMPCON, 10, 3},
     [0xE3] = {XTHL, 18, 1},
@@ -669,7 +841,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xE5] = {PUSH, 11, 1},
     [0xE6] = {ANI, 7, 2},
     [0xE7] = {RST, 11, 1},
-    [0xE8] = {RCON, 11, 1},
+    [0xE8] = {RETCON, 11, 1},
     [0xE9] = {PCHL, 5, 1},
     [0xEA] = {JMPCON, 10, 3},
     [0xEB] = {XCHG, 5, 1},
@@ -677,7 +849,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xED] = {CALL, 17, 3},
     [0xEE] = {XRI, 7, 2},
     [0xEF] = {RST, 11, 1},
-    [0xF0] = {RCON, 11, 1},
+    [0xF0] = {RETCON, 11, 1},
     [0xF1] = {POP, 10, 1},
     [0xF2] = {JMPCON, 10, 3},
     [0xF3] = {DI, 4, 1},
@@ -685,7 +857,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xF5] = {PUSH, 11, 1},
     [0xF6] = {ORI, 7, 2},
     [0xF7] = {RST, 11, 1},
-    [0xF8] = {RCON, 11, 1},
+    [0xF8] = {RETCON, 11, 1},
     [0xF9] = {SPHL, 5, 1},
     [0xFA] = {JMPCON, 10, 3},
     [0xFB] = {EI, 4, 1},
@@ -695,121 +867,4 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xFF] = {RST, 11, 1}
 };
 
-
-// void UndefinedInstruction(State8080* state);
-
-// /* DATA TRANSFER */
-
-// //Flags: none
-// void movReg(uint8_t* src, uint8_t* dst);
-
-// //Flags: none
-// void movFromMem(State8080* state, uint8_t* reg);
-
-// //Flags: none
-// void movToMem(State8080* state, uint8_t* reg);
-
-// //Flags: none
-// void mvi(State8080* state, uint8_t* reg, uint8_t imm);
-
-// //Flags: none
-// void lxi(State8080* state, uint8_t* rph, uint8_t* rpl, uint8_t dh, uint8_t dl);
-
-// //Flags: none
-// void ldax(State8080* state, uint8_t* rph, uint8_t* rpl);
-
-// //Flags: none
-// void stax(State8080* state, uint8_t* rph, uint8_t* rpl);
-
-// /* ARITHMETIC */
-
-// //Flags: Z, S, P, CY, AC
-// void addReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, CY, AC
-// void adcReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, AC
-// void inrReg(State8080* state, uint8_t* reg);
-
-// //Flags: None
-// void inx(uint8_t* rph, uint8_t* rpl);
-
-// //Flags: Z, S, P, CY, AC
-// void subReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, CY, AC
-// void sbbReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, AC
-// void dcrReg(State8080* state, uint8_t* reg);
-
-// //Flags: None
-// void dcx(uint8_t* rph, uint8_t* rpl);
-
-// //Flags: CY
-// void dad(State8080* state, uint8_t* rph, uint8_t* rpl);
-
-// //Flags: Z, S, P, CY, AC
-// void daa();
-
-// /* LOGICAL */
-
-// //Flags: Z, S, P, CY, AC (CY is cleared)
-// void anaReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, CY, AC (CY and AC are cleared)
-// void xraReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, CY, AC (CY and AC are cleared)
-// void oraReg(State8080* state, uint8_t* reg);
-
-// //Flags: Z, S, P, CY, AC
-// // z = 1 if (A) = (r)
-// // cy = 1 if (A) < (r)
-// void cmpReg(State8080* state, uint8_t* reg);
-
-// /* BRANCH */
-
-// void jmp(State8080* state, uint16_t adr);
-
-// /* STACK, I/O, MACHINE CONTROL */
-
-// void push(State8080* state, uint8_t* rph, uint8_t* rpl);
-// void pop(State8080* state, uint8_t* rph, uint8_t* rpl);
-
-
-// void call(State8080* state, uint8_t adrl, uint8_t adrh);
-// // void ret(State8080* state, uint8_t adrl, uint8_t adrh);
-
-// int rst(State8080* state, uint16_t base, uint8_t opcode);
-
-// void ei(State8080* state);
-// void di(State8080* state);
-
-// /*
-// void hlt();
-// void nop();
-// */
-
-// /* CONDITIONAL CODES */
-
-// /*
-
-// Condition                   CCC
-// NZ  -> not zero (Z = 0)     (000)     
-// Z   -> zero (Z = 1)         (001)
-// NC  -> no carry (CY = 0)    (010)
-// C   -> carry (CY = 1)       (011)
-// PO  -> parity odd (P = 0)   (100)
-// PE  -> parity even (P =1)   (101)
-// P   -> plus (S = 0)         (110)
-// M   -> minus (S = 1)        (111)
-
-// */
-
-// void UpdateAllFlags(State8080* state, uint16_t ans);
-// int CheckParity(int check, int size);
-
-// void PrintProcState(State8080* state);
 #endif // __OPCODES_H

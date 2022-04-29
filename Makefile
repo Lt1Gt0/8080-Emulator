@@ -42,12 +42,6 @@ $(OBJ_DIR)/%_asm.o: $(SRC_DIR)/%.asm
 	@ mkdir -p $(@D)
 	$(ASMC) $(ASMFLAGS) $^ -f elf64 -o $@
 
-link: 
-	@ echo ~~~~~ LINKING ~~~~~
-	$(CC) $(CCFLAGS) 
-	
-# $(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
-
 setup:
 	@mkdir $(OBJ_DIR)
 	@mkdir $(BUILD_DIR)

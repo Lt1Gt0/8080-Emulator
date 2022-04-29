@@ -1,5 +1,6 @@
 # Needed Instruction for space invaders
 
+- [ ] FLAGS
 - [X] 0x00 NOP
 - [X] 0x01 LXI B,D16
 - [ ] 0x05 DCR B
