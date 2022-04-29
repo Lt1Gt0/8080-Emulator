@@ -2,6 +2,7 @@
 #ifndef __CPU8080_H
 #define __CPU8080_H
 #include <stdint.h>
+#include "memory.h"
 
 // I dont feel like typing __attribute__((unused)) all the time
 #define UNUSED __attribute__((unused))
@@ -62,11 +63,10 @@ typedef struct State8080 {
         uint16_t hl;
     };
 
-    // Stack pointer
-    uint16_t sp;
-
-    // Program Counter
-    uint16_t pc;
+    uint16_t    sp; // Stack Pointer
+    uint16_t    pc; // Program Counter
+    uint8_t     int_enable; // interrupts enabled
+    uint8_t     int_pend; // Pending Interrupts 
     
     // 8-bit Flags
     union {
@@ -83,10 +83,8 @@ typedef struct State8080 {
         uint8_t PSW; // Program Status Word
     };
 
-    uint8_t* memory; // Memory location
-    uint8_t int_enable; // interrupts enabled
-    uint8_t int_pend; // Pending Interrupts 
-
+    VirtualMemory   memory; // Memory location
+    int             ROMSize;
 } State8080;
 
 #endif // __CPU8080_H

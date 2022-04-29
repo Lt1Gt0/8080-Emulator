@@ -1,12 +1,14 @@
 #include "8080/8080.h"
 #include "8080/opcodes.h"
 #include "Debug/debug.h"
+#include "SpaceInvaders/spaceinvaders.h"
 // #include "8080/Disassembler/disassembler.h"
 
 State8080* Init8080()
 {
-    State8080* state = calloc(1, sizeof(State8080));
-    state->memory = malloc(0x10000); // Allocate 16k worth of memory
+    State8080* state = (State8080*)calloc(1, sizeof(State8080));
+    state->pc = ROM_OFFSET;
+    state->sp = 0xF000; // Pulled from space invader specs
     return state;
 }
 
@@ -916,7 +918,7 @@ int Emulate8080p(State8080* state)
 
 int ExecuteInstruction(State8080* state)
 {
-    Opcode8080 currentOpcode = opcodeLookUp[state->memory[state->pc]];
+    Opcode8080 currentOpcode = opcodeLookUp[*(unsigned char*)(state->memory.base + state->pc)];
     currentOpcode.targetFunc;
 
     fprintf(stdout, "OPCODE SIZE: %d", currentOpcode.size);

@@ -1,1 +1,54 @@
-// #include "SpaceInvaders/spaceinvaders.h"
+#include "SpaceInvaders/spaceinvaders.h"
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int LoadSpaceInvaders(State8080* state)
+{
+    int fd;
+    PrepareROM(state);
+
+    if ((fd = open("ROM/invaders", O_RDONLY)) == -1) {
+        fprintf(stderr, "Error opening invaders rom\n");
+        exit(-1);
+    }
+
+    state->memory.base = aligned_alloc(1<<16, 65536);
+    if (read(fd, state->memory.base + ROM_OFFSET, state->ROMSize) == 0) {
+        fprintf(stderr, "Unable to load ROM into memory\n");
+        exit(-1);
+    }
+
+    return fd;
+}
+
+void PrepareROM(State8080* state)
+{
+    FILE* FinalROM = fopen("ROM/invaders", "wb+");
+    char* ROMFileNames[4] = {"ROM/invaders.h", "ROM/invaders.g", "ROM/invaders.f", "ROM/invaders.e"};
+    FILE* fp;
+    size_t filesize;
+    unsigned char* buf;
+
+    for (int i = 0; i < TOTAL_ROM_FILES; i++) {
+        fp = fopen(ROMFileNames[i], "rb");
+
+        if (fp == NULL) {
+            fprintf(stderr, "ERROR: Could not open [%s]\nExiting...\n", ROMFileNames[i]);
+            exit(-1);
+        }
+
+        fseek(fp, 0, SEEK_END);
+        filesize = ftell(fp);
+        rewind(fp);
+
+        buf = (unsigned char*)malloc(sizeof(unsigned char) * filesize);
+        fread(buf, filesize, 1, fp);
+
+        fwrite(buf, filesize, sizeof(unsigned char), FinalROM);
+    }
+
+    fseek(FinalROM, 0, SEEK_END);
+    state->ROMSize = ftell(FinalROM);
+    rewind(FinalROM);
+}

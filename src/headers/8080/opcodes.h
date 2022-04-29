@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
+#include "memory.h"
+#include "Debug/debug.h"
 
 #define UNDEFINED_OP_CODE "UNDF"
 
@@ -17,6 +19,48 @@ typedef struct {
     uint8_t size;       // Size of opcode (1, 2, 3 bytes typically)
 } Opcode8080;
 
+uint8_t* ByteRegRef(State8080* state, uint8_t ident)
+{
+    switch (ident) {
+    case 0x00:
+        return &state->b;
+    case 0x01:
+        return &state->c;
+    case 0x02:
+        return &state->d;
+    case 0x03:
+        return &state->e;
+    case 0x04:
+        return &state->h;
+    case 0x05:
+        return &state->l;
+    case 0x06:
+        // Register pair HL is typically used to refer to memory locations
+        return (uint8_t*)MemRef(&state->memory, state->hl);
+    case 0x07:
+        return &state->a;
+    default:
+        fprintf(stderr, "Unable to indetify register: %02x", ident);
+        exit(-1);
+    }
+}
+
+uint16_t* ShortRegReg(State8080* state, uint8_t ident)
+{
+    switch (ident) {
+    case 0x00:
+        return &state->bc;
+    case 0x01:
+        return &state->de;
+    case 0x02:
+        return &state->hl;
+    case 0x03:
+        return &state->sp;
+    default:
+        fprintf(stderr, "Unable to identify register: %04x", ident);
+        exit(-1);
+    }
+}
 
 uint8_t CheckCondition(State8080* state, ConditionFlags identifier)
 {
@@ -40,7 +84,12 @@ int UNDEFINED_OPCODE(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uin
 
 int MOV(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-    
+    uint8_t dstIdentifier = (0x38 & opcode) >> 3;
+    uint8_t srcIdentifier = (0x07 & opcode);
+    uint8_t* dst = ByteRegRef(state, dstIdentifier);
+    uint8_t* src = ByteRegRef(state, srcIdentifier);
+    *dst = *src;
+    PRINT_DECOMPILED(basePC, "MOV %x, %x", dstIdentifier, srcIdentifier);
 }
 
 int MVI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)

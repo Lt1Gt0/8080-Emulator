@@ -3,7 +3,11 @@
 #define __SPACE_INVADERS_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include "8080/cpu.h"
+
 // Defines based off of information about space invader rom
+#define TOTAL_ROM_FILES 4
 #define MEMORY_SIZE     0x4000
 #define ROM_SIZE        0x2000
 #define STACK_START     0x2400
@@ -26,31 +30,34 @@
 Set up key mapping for sdl events
 */
 
-typedef struct InvaderWindow {
-    // SDL WINDOW
-    // SDL SURFACE
-    uint32_t* pixels; 
-    uint8_t quit; // Event on quit
-    // SDL EVENTS
-    // SDL TIMER
-}InvaderWindow;
+// typedef struct InvaderWindow {
+//     // SDL WINDOW
+//     // SDL SURFACE
+//     uint32_t* pixels; 
+//     uint8_t quit; // Event on quit
+//     // SDL EVENTS
+//     // SDL TIMER
+// }InvaderWindow;
 
-typedef struct PortIO {
-    uint8_t port0; // INPUT
-    uint8_t port1; // INPUT
-    uint8_t port2; // INPUT
-    uint8_t port3; // OUTPUT
-    uint8_t port5; // OUTPUT
+// typedef struct PortIO {
+//     uint8_t port0; // INPUT
+//     uint8_t port1; // INPUT
+//     uint8_t port2; // INPUT
+//     uint8_t port3; // OUTPUT
+//     uint8_t port5; // OUTPUT
 
-    uint8_t shiftConfig;
+//     uint8_t shiftConfig;
 
-    union {
-        struct {
-            uint8_t x; // Least Significant Byte
-            uint8_t y; // Most Significant Byte
-        };
-        uint16_t hiddenReg; // 15 byte abstracted reg
-    };
-}PortIO;
+//     union {
+//         struct {
+//             uint8_t x; // Least Significant Byte
+//             uint8_t y; // Most Significant Byte
+//         };
+//         uint16_t hiddenReg; // 15 byte abstracted reg
+//     };
+// }PortIO;
+
+int LoadSpaceInvaders(State8080* state);
+void PrepareROM(State8080* state);
 
 #endif // __SPACE_INVADERS_H
