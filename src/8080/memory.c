@@ -3,26 +3,25 @@
 /* MEMORY MANIPULATION/READING */
 void* MemRef(VirtualMemory* mem, uint16_t offset)
 {
-    // TODO
+    return (void*)((uintptr_t)mem->base | offset);
 }
 
 uint8_t MemRead(VirtualMemory* mem, uint16_t offset)
 {
-    // TODO
-    return 0; // DEFAULT FOR NOW
+    return *(uint8_t*)MemRef(mem, offset);
 }
 
 uint16_t MemShortRead(VirtualMemory* mem, uint16_t offset)
 {
-    return 0; // DEFAULT FOR NOW
+    return *(uint16_t*)MemRef(mem, offset);
 }
 
 void MemWrite(VirtualMemory* mem, uint16_t offset, uint8_t value)
 {
-    // TODO
+    *(uint8_t*)MemRef(mem, offset) = value;
 }
 
 void MemShortWrite(VirtualMemory* mem, uint16_t offset, uint16_t value)
 {
-    // TODO
+    *(uint16_t*)MemRef(mem, offset) = value;
 }

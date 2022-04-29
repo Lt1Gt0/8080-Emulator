@@ -45,7 +45,7 @@ uint8_t* ByteRegRef(State8080* state, uint8_t ident)
     }
 }
 
-uint16_t* ShortRegReg(State8080* state, uint8_t ident)
+uint16_t* ShortRegRef(State8080* state, uint8_t ident)
 {
     switch (ident) {
     case 0x00:
@@ -84,22 +84,37 @@ int UNDEFINED_OPCODE(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uin
 
 int MOV(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
+    // get the middle(ish) bits of the opcode, then shift them to the very right to get the dst identifier
     uint8_t dstIdentifier = (0x38 & opcode) >> 3;
+
+    // Get the lower bits of the opcode to get the src identifier
     uint8_t srcIdentifier = (0x07 & opcode);
+
     uint8_t* dst = ByteRegRef(state, dstIdentifier);
     uint8_t* src = ByteRegRef(state, srcIdentifier);
     *dst = *src;
-    PRINT_DECOMPILED(basePC, "MOV %x, %x", dstIdentifier, srcIdentifier);
+    PRINT_DECOMPILED(basePC, "MOV (%X), (%X)\n", dstIdentifier, srcIdentifier);
+    return 1;
 }
 
 int MVI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-
+    uint8_t dstIdentifier = (0x38 & opcode) >> 3;
+    uint8_t imm = MemRead(&state->memory, state->pc + 1);
+    uint8_t* dst = ByteRegRef(state, dstIdentifier);
+    *dst = imm;
+    PRINT_DECOMPILED(basePC, "MVI (%X), (%X)", dstIdentifier, imm);
+    return 1;
 }
 
 int LXI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-
+    uint8_t dstIdentifier = (0x30 & opcode) >> 4;
+    uint16_t imm = MemShortRead(&state->memory, state->pc + 1);
+    uint16_t* dst = ShortRegRef(state, dstIdentifier);
+    *dst = imm;
+    PRINT_DECOMPILED(basePC, "LXI (%X), (%X)", dstIdentifier, imm);
+    return 1;
 }
 
 int LDA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
@@ -143,13 +158,20 @@ int XCHG(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 // ADD_REG, ADD_MEM,
 int ADD(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-
+    uint8_t regIdentifier = (0x38 & opcode) >> 3;
+    uint8_t* reg = ByteRegRef(state, regIdentifier);
+    state->a += *reg;
+    PRINT_DECOMPILED(basePC, "ADD r(%X)", regIdentifier);
+    return 1;
 }
 
 // ADD_IMM
 int ADI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-
+    uint8_t imm = MemRead(&state->memory, state->pc + 1);
+    state->a += imm;
+    PRINT_DECOMPILED(basePC, "ADI (%X)", imm);
+    return 1;
 }
 
 // ADC_REG, ADC_MEM
@@ -166,13 +188,18 @@ int ACI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 // SUB_REG, SUB_MEM
 int SUB(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-
+    // Forgot I dont have flags setup
+    // uint8_t regIdentifier = (0x38 & opcode) >> 3;
+    // uint8_t* reg = ByteRegRef(state, regIdentifier);
+    // state->a -= *reg;
+    PRINT_DECOMPILED(basePC, "SUB r(%X)", regIdentifier);
+    return 1;
 }
 
 // SUB_IMM
 int SUI(State8080* state,UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-
+    uint8_t imm = MemRead(&state->memory, state->)
 }
 
 // SBB_REG, SBB_MEM
@@ -334,7 +361,8 @@ int CCON(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 // RET with(out) conditions
 int RET(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-
+    // PRINT_DECOMPILED(basePC, "RET", NULL);
+    return 1;
 }
 
 int RCON(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
@@ -403,7 +431,8 @@ int HLT(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 
 int NOP(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-
+    PRINT_DECOMPILED(basePC, "%s\n", "NOP");
+    return 1;
 }
 
 // Look up table for each 8080 opcode (256 opcodes in the 8080 manual)

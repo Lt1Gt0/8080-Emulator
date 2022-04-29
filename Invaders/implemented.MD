@@ -1,0 +1,52 @@
+# Needed Instruction for space invaders
+
+- [X] 0x00 NOP
+- [X] 0x01 LXI B,D16
+- [ ] 0x05 DCR B
+- [X] 0x06 MVI B,D8
+- [ ] 0x09 DAD B
+- [ ] 0x0d DCR C
+- [X] 0x0e MVI C,D8
+- [ ] 0x0f RRC
+- [X] 0x11 LXI D,D16
+- [ ] 0x13 INX D
+- [ ] 0x19 DAD D
+- [ ] 0x1a LDAX D
+- [X] 0x21 LXI H,D16
+- [ ] 0x23 INX H
+- [X] 0x26 MVI H,D8
+- [ ] 0x29 DAD H
+- [X] 0x31 LXI SP,D16
+- [ ] 0x32 STA adr
+- [X] 0x36 MVI M,D8
+- [ ] 0x3a LDA adr
+- [X] 0x3e MVI A,D8
+- [X] 0x56 MOV D,M
+- [X] 0x5e MOV E,M
+- [X] 0x66 MOV H,M
+- [X] 0x6f MOV L,A
+- [X] 0x77 MOV M,A
+- [X] 0x7a MOV A,D
+- [X] 0x7b MOV A,E
+- [X] 0x7c MOV A,H
+- [X] 0x7e MOV A,M
+- [ ] 0xa7 ANA A
+- [ ] 0xaf XRA A
+- [ ] 0xc1 POP B
+- [ ] 0xc2 JNZ adr
+- [ ] 0xc3 JMP adr
+- [ ] 0xc5 PUSH B
+- [ ] 0xc6 ADI D8
+- [ ] 0xc9 RET
+- [ ] 0xcd CALL adr
+- [ ] 0xd1 POP D
+- [ ] 0xd3 OUT D8
+- [ ] 0xd5 PUSH D
+- [ ] 0xe1 POP H
+- [ ] 0xe5 PUSH H
+- [ ] 0xe6 ANI D8
+- [ ] 0xeb XCHG
+- [ ] 0xf1 POP PSW
+- [ ] 0xf5 PUSH PSW
+- [ ] 0xfb EI
+- [ ] 0xfe CPI D8

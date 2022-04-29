@@ -2,15 +2,16 @@
 #ifndef __DEBUG_H
 #define __DEBUG_H
 
-#ifdef __DECOMPILE_H
-    #define PRINT_DECOMPILED(PC, fmt, args...) \
-    { \
-        fprintf(stdout, "%04x: ", PC);\
-        fprintf(stdout, fmt, args); \
+#define DECOMPILE // Remove later 
+
+#ifdef DECOMPILE
+    #define PRINT_DECOMPILED( PC, fmt, args... ){ \
+        fprintf(stdout, "%04X: ", PC);\
+        fprintf(stdout, fmt, args);\
     }
 #else 
-    #define PRINT_DECOMPILED(...) do {} while (0);
-#endif // __DECOMPILE_H
+    #define PRINT_DECOMPILED( ... ) do {} while (0);
+#endif // DECOMPILE
 
 #ifdef __CPU8080_H
     #define PRINT_PROC_STATE(state) \

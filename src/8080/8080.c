@@ -918,10 +918,9 @@ int Emulate8080p(State8080* state)
 
 int ExecuteInstruction(State8080* state)
 {
-    Opcode8080 currentOpcode = opcodeLookUp[*(unsigned char*)(state->memory.base + state->pc)];
-    currentOpcode.targetFunc;
+    Opcode8080 currentOpcode = opcodeLookUp[MemRead(&state->memory, state->pc)];
+    currentOpcode.targetFunc(state, state->pc, MemRead(&state->memory, state->pc));
 
-    fprintf(stdout, "OPCODE SIZE: %d", currentOpcode.size);
     PRINT_PROC_STATE(state);
 
     state->pc += currentOpcode.size;
