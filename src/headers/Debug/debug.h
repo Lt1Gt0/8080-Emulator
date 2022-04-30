@@ -16,9 +16,9 @@
 #ifdef __CPU8080_H
     #define PRINT_PROC_STATE(state) \
     { \
-        fprintf(stdout, "\tC=%d, P=%d, Z=%d\n", state->cy, state->p, state->z); \
-        fprintf(stdout, "\tA $%02x | BC $%04x | DE $%04x | HL $%04x | SP $%04x | PC %04x\n\n", \
-            state->a, state->bc, state->de, state->hl, state->sp, state->pc); \
+        fprintf(stdout, "\tC=%d, P=%d, Z=%d\n", state->PSW.cy, state->PSW.p, state->PSW.z); \
+        fprintf(stdout, "\tA $%02x | BC $%04x | DE $%04x | HL $%04x | SP $%04x\n", \
+            state->a, state->bc, state->de, state->hl, state->sp); \
     }
 #else
     #define PRINT_PROC_STATE(args...) \

@@ -76,21 +76,7 @@ typedef struct State8080 {
     uint8_t     int_enable; // interrupts enabled
     uint8_t     int_pend; // Pending Interrupts 
     
-    // 8-bit Flags
-    union {
-        struct {
-            uint8_t s       : 1; // Sign
-            uint8_t z       : 1; // Zero 
-            uint8_t pad1    : 1; // Padding
-            uint8_t ac      : 1; // Auxiliary Carry
-            uint8_t pad2    : 1; // Padding
-            uint8_t p       : 1; // Parity 
-            uint8_t pad3    : 1; // Padding
-            uint8_t cy      : 1; // Carry
-        };
-        uint8_t PSW; // Processor Status Word
-    };
-
+    ProcStatusWord  PSW;
     VirtualMemory   memory; // Memory location
     int             ROMSize;
 } State8080;
