@@ -75,10 +75,14 @@ typedef struct State8080 {
     uint16_t    pc; // Program Counter
     uint8_t     int_enable; // interrupts enabled
     uint8_t     int_pend; // Pending Interrupts 
+    uint8_t     halt;
     
     ProcStatusWord  PSW;
     VirtualMemory   memory; // Memory location
     int             ROMSize;
+
+    uint8_t (*ProcIN)(uint8_t);
+    void (*ProcOUT)(uint8_t, uint8_t);
 } State8080;
 
 #endif // __CPU8080_H

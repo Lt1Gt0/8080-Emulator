@@ -600,7 +600,7 @@ int Emulate8080p(State8080* state)
     //     break;
     // case 0xAA: // XRA D
     //     xraReg(state, &state->d);
-    //     break;
+    //     break;i
     // case 0xAB: // XRA E
     //     xraReg(state, &state->e);
     //     break;
@@ -918,11 +918,10 @@ int Emulate8080p(State8080* state)
 
 int ExecuteInstruction(State8080* state)
 {
-    Opcode8080 currentOpcode = opcodeLookUp[MemRead(&state->memory, state->pc)];
-    currentOpcode.targetFunc(state, state->pc, MemRead(&state->memory, state->pc));
+    uint8_t opcode = MemRead(&state->memory, state->pc);
+    uint16_t prevPC = state->pc;
+    state->pc += opcodeLookUp[opcode].size;
 
     PRINT_PROC_STATE(state);
-
-    state->pc += currentOpcode.size;
-    return 0;
+    return opcodeLookUp[opcode].targetFunc(state, prevPC, opcode);
 }
