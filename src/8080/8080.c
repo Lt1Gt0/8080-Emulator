@@ -8,7 +8,9 @@ State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint
     State8080* state = (State8080*)calloc(1, sizeof(State8080));
     state->pc = pc;
     state->sp = 0xF000; // Pulled from space invader specs
-    return state;
+
+    state->ProcIN = &ioIN;
+    state->ProcOUT = &ioOUT;
 
     if (in != NULL) {
         state->ProcIN = in;
@@ -17,6 +19,7 @@ State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint
     if (out != NULL) {
         state->ProcOUT = out;
     }
+    return state;
 }
 
 int ExecuteInstruction(State8080* state)
@@ -44,4 +47,15 @@ int ExecuteInstruction(State8080* state)
     // PRINT_PROC_STATE(state);
 
     return status;
+}
+
+void ioIN(UNUSED uint8_t port)
+{
+    fprintf(stderr, "UNIMPLEMENTED IN INSTRUCTION");
+}
+
+uint8_t ioOUT(UNUSED uint8_t port, UNUSED uint8_t data)
+{
+    fprintf(stderr, "UNIMPLEMENTED OUT INSTRUCTION");
+    return 0x0;
 }

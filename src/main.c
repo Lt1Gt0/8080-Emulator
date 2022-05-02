@@ -14,7 +14,7 @@ int main(int argc, char** argv)
         } else {
             state->halt = 1;
             running = 0;
-        }
+        }        
     }
     return 0;
 }

@@ -79,6 +79,7 @@ uint8_t InvadersIn(uint8_t port)
 
 void InvadersOut(uint8_t port, uint8_t data)
 {
+    fprintf(stdout, "Invaders OUT: Port: %X, Data: %X", port, data);
     switch (port) {
     case 2:
     case 3:
