@@ -39,25 +39,30 @@ Set up key mapping for sdl events
 //     // SDL TIMER
 // }InvaderWindow;
 
-// typedef struct PortIO {
-//     uint8_t port0; // INPUT
-//     uint8_t port1; // INPUT
-//     uint8_t port2; // INPUT
-//     uint8_t port3; // OUTPUT
-//     uint8_t port5; // OUTPUT
+typedef struct {
+    uint8_t port0; // INPUT
+    uint8_t port1; // INPUT
+    uint8_t port2; // INPUT
+    uint8_t port3; // OUTPUT
+    uint8_t port5; // OUTPUT
 
-//     uint8_t shiftConfig;
+    uint8_t shiftConfig;
 
-//     union {
-//         struct {
-//             uint8_t x; // Least Significant Byte
-//             uint8_t y; // Most Significant Byte
-//         };
-//         uint16_t hiddenReg; // 15 byte abstracted reg
-//     };
-// }PortIO;
+    union {
+        struct {
+            uint8_t x; // Least Significant Byte
+            uint8_t y; // Most Significant Byte
+        };
+        uint16_t hiddenReg; // 15 byte abstracted reg
+    };
+} PortIO;
 
 int LoadSpaceInvaders(State8080* state);
 void PrepareROM(State8080* state);
+
+uint8_t InvadersIn(uint8_t port);
+void InvadersOut(uint8_t port, uint8_t data);
+
+
 
 #endif // __SPACE_INVADERS_H

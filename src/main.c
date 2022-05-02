@@ -4,12 +4,17 @@
 
 int main(int argc, char** argv)
 {
-    State8080* state = Init8080();
+    int running = 1;
+    State8080* state = Init8080(ROM_OFFSET, &InvadersIn, &InvadersOut);
     LoadSpaceInvaders(state);
 
-    while (state->pc < state->ROMSize) {
-        ExecuteInstruction(state);
-    }
+    while (running) {
+        if (!state->halt && ExecuteInstruction(state) == 1) {
 
+        } else {
+            state->halt = 1;
+            running = 0;
+        }
+    }
     return 0;
 }

@@ -73,6 +73,7 @@ typedef struct State8080 {
 
     uint16_t    sp; // Stack Pointer
     uint16_t    pc; // Program Counter
+    uint16_t    cycles;
     uint8_t     int_enable; // interrupts enabled
     uint8_t     int_pend; // Pending Interrupts 
     uint8_t     halt;

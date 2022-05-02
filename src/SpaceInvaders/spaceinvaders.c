@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <assert.h>
+
+static PortIO gamePorts;
 
 int LoadSpaceInvaders(State8080* state)
 {
@@ -51,4 +54,40 @@ void PrepareROM(State8080* state)
     fseek(FinalROM, 0, SEEK_END);
     state->ROMSize = ftell(FinalROM);
     rewind(FinalROM);
+}
+
+uint8_t InvadersIn(uint8_t port)
+{
+    switch (port) {
+    case 0:
+        return gamePorts.port0;
+    case 1:
+        return gamePorts.port1;
+    case 2:
+        return gamePorts.port2;
+    case 3:
+        assert(gamePorts.shiftConfig <= 7);
+
+        uint8_t tmp = (uint8_t)(gamePorts.hiddenReg)>>(8 - gamePorts.shiftConfig);
+        return tmp;
+    default:
+        fprintf(stderr, "UNKNOWN PORT: %X", port);
+        exit(-1);
+    }
+    return 0;
+}
+
+void InvadersOut(uint8_t port, uint8_t data)
+{
+    switch (port) {
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        break;
+    default:
+        fprintf(stderr, "UNKNOWN PORT: %X", port);
+        exit(-1);
+    }
 }
