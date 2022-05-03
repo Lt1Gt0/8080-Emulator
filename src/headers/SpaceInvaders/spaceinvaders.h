@@ -8,23 +8,27 @@
 
 // Defines based off of information about space invader rom
 #define TOTAL_ROM_FILES 4
-#define MEMORY_SIZE     0x4000
-#define ROM_SIZE        0x2000
+#define MEMORY_SIZE     0x4000 // ROM + RAM + VRAM + RAM mirror
+#define ROM_SIZE        0x2000 // Size of the 4 ROM Files together
 #define STACK_START     0x2400
 #define PROGRAM_START   0x0000
 
-#define ALIGNED_PREFIX  (1 << 16) // Prefix to get 16-bit aligned memory
-#define ROM_OFFSET      0x00
-#define VRAM_OFFSET     0x2400
-#define VRAM_SIZE       0x1C00
-#define VRAM_DELAY      0x9 // 112 Hz for 1000 ms
-#define HALF_1          0x2 // Pending interrupt to call rst 1
-#define FULL_2          0x4 // Pending interrupt to call rst 2
+#define ROM_OFFSET      0x0000
+#define VRAM_OFFSET     0x2400 // Start address of VRAM
+#define VRAM_SIZE       0x1C00 // 2400 - 3FFF (256 * 28) or (VRAM_OFFSET - (WINDOW_HEIGHT * WINDOW_WIDTH) / sizeof(byte)) 
+#define VRAM_DELAY      0x0009 // 112 Hz for 1000 ms
+#define HALF_1          0x0002 // Pending interrupt to call rst 1
+#define FULL_2          0x0004 // Pending interrupt to call rst 2
 
-#define WINDOW_WIDTH    (256) // Window width, this will be rotated
-#define WINDOW_HEIGHT   (224) // Window height, this will be rotated
+#define WINDOW_WIDTH    256 // Window width, this will be rotated
+#define WINDOW_HEIGHT   224 // Window height, this will be rotated
+
+/* 
+The version of the rom that is currently loaded
+only supports the color black and green
+*/
 #define PIX_GREEN       0xFF00 // RGB888 GREEN value
-#define PIX_BLACK       0x0 // RGB888 BLACK Value
+#define PIX_BLACK       0x0000 // RGB888 BLACK Value
 
 /* TODO
 Set up key mapping for sdl events
