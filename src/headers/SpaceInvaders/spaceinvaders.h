@@ -2,6 +2,7 @@
 #ifndef __SPACE_INVADERS_H
 #define __SPACE_INVADERS_H
 
+#include <SDL2/SDL.h>
 #include <stdint.h>
 #include <stdio.h>
 #include "8080/cpu.h"
@@ -20,8 +21,10 @@
 #define HALF_1          0x0002 // Pending interrupt to call rst 1
 #define FULL_2          0x0004 // Pending interrupt to call rst 2
 
-#define WINDOW_WIDTH    256 // Window width, this will be rotated
-#define WINDOW_HEIGHT   224 // Window height, this will be rotated
+#define WINDOW_WIDTH        256 // Window width, this will be rotated
+#define WINDOW_HEIGHT       224 // Window height, this will be rotated
+#define WINDOW_INIT_SUCCESS 0
+
 
 /* 
 The version of the rom that is currently loaded
@@ -34,14 +37,17 @@ only supports the color black and green
 Set up key mapping for sdl events
 */
 
-// typedef struct InvaderWindow {
-//     // SDL WINDOW
-//     // SDL SURFACE
-//     uint32_t* pixels; 
-//     uint8_t quit; // Event on quit
-//     // SDL EVENTS
-//     // SDL TIMER
-// }InvaderWindow;
+typedef struct {
+    uint32_t wFlags;
+    SDL_Window* window;
+    SDL_Surface* surface;
+    SDL_Surface* windowSurface;
+    SDL_DisplayMode displayMode;
+    uint32_t* pixels; 
+    uint8_t quit; // Event on quit
+    // SDL EVENTS
+    // SDL TIMER
+}InvaderWindow;
 
 typedef struct {
     uint8_t port0; // INPUT
@@ -63,6 +69,9 @@ typedef struct {
 
 int LoadSpaceInvaders(State8080* state);
 void PrepareROM(State8080* state);
+
+int InitializeInvaderWindow();
+void InvaderEventLoop();
 
 uint8_t InvadersIn(uint8_t port);
 void InvadersOut(uint8_t port, uint8_t data);

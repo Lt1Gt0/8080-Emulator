@@ -5,6 +5,7 @@
 #include <assert.h>
 
 static PortIO gamePorts;
+static InvaderWindow mainWindow;
 
 int LoadSpaceInvaders(State8080* state)
 {
@@ -54,6 +55,111 @@ void PrepareROM(State8080* state)
     fseek(FinalROM, 0, SEEK_END);
     state->ROMSize = ftell(FinalROM);
     rewind(FinalROM);
+}
+
+int InitializeInvaderWindow()
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        fprintf(stderr, "Error: Could not initialize SDL - %s\n", SDL_GetError());
+        exit(-1);
+    }
+
+    mainWindow.window = SDL_CreateWindow("Space Invaders", 
+        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+        WINDOW_WIDTH, WINDOW_HEIGHT, 0); // No flags for now
+
+    if (!mainWindow.window) {
+        fprintf(stderr, "Error: Could not intialize main window - %s\n", SDL_GetError());
+        exit(-1);
+    }
+
+    mainWindow.windowSurface = SDL_GetWindowSurface(mainWindow.window);
+
+    if (!mainWindow.windowSurface) {
+        fprintf(stderr, "Error: Could not initialize window surface - %s\n", SDL_GetError());
+        exit(-1);
+    }
+
+    mainWindow.surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_WIDTH, 32, 0, 0, 0, 0);
+
+    return WINDOW_INIT_SUCCESS;
+}
+
+void InvaderInputHandler()
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            exit(0);
+            break;
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym) {
+            case 'c': // coin in
+                gamePorts.port1 |= 1;
+                break;
+            case 's': // P1 Start
+                gamePorts.port1 |= 1 << 2;
+                break;
+            case 'w': // P1 Shoot
+                gamePorts.port1 |= 1 << 4;
+                break;
+            case 'a': // P1 Left
+                gamePorts.port1 |= 1 << 5;
+                break;
+            case 'd': // P1 Right
+                gamePorts.port1 |= 1 << 6;
+                break;
+            case SDLK_LEFT: // P2 Left
+                gamePorts.port2 |= 1 << 5;
+                break;
+            case SDLK_RIGHT: // P2 Right
+                gamePorts.port2 |= 1 << 6;
+                break;
+            case SDLK_RETURN: // P2 Start
+                gamePorts.port1 |= 1 << 1;
+                break;
+            case SDLK_UP: // P2 Shoot
+                gamePorts.port2 |= 1 << 4;
+                break;
+            }
+            break;
+        case SDL_KEYUP:
+            switch (event.key.keysym.sym) {
+            case 'c': // coin in
+                gamePorts.port1 &= ~(1);
+                break;
+            case 's': // P1 Start
+                gamePorts.port1 &= ~(1 << 2);
+                break;
+            case 'w': // P1 Shoot
+                gamePorts.port1 &= ~(1 << 4);
+                break;
+            case 'a': // P1 Left
+                gamePorts.port1 &= ~(1 << 5);
+                break;
+            case 'd': // P1 Right
+                gamePorts.port1 &= ~(1 << 6);
+                break;
+            case SDLK_LEFT: // P2 Left
+                gamePorts.port2 &= ~(1 << 5);
+                break;
+            case SDLK_RIGHT: // P2 Right
+                gamePorts.port2 &= ~(1 << 6);
+                break;
+            case SDLK_RETURN: // P2 Start
+                gamePorts.port1 &= ~(1 << 1);
+                break;
+            case SDLK_UP: // P2 Shoot
+                gamePorts.port2 &= ~(1 << 4);
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return 0;
 }
 
 uint8_t InvadersIn(uint8_t port)

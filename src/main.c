@@ -5,16 +5,23 @@
 int main(int argc, char** argv)
 {
     int running = 1;
-    State8080* state = Init8080(ROM_OFFSET, &InvadersIn, &InvadersOut);
+    State8080* state = Init8080(ROM_OFFSET, STACK_START, &InvadersIn, &InvadersOut);
     LoadSpaceInvaders(state);
 
-    while (running) {
-        if (!state->halt && ExecuteInstruction(state) == 1) {
+    if (InitializeInvaderWindow() != WINDOW_INIT_SUCCESS)
+    {
+        fprintf(stderr, "Error initializing space invaders window\n");
+        exit(-1);  
+    } 
 
-        } else {
-            state->halt = 1;
-            running = 0;
-        }        
+    while (running) {
+        InvaderEventLoop();
+        // if (!state->halt && ExecuteInstruction(state) == 1) {
+
+        // } else {
+        //     state->halt = 1;
+        //     running = 0;
+        // }        
     }
     return 0;
 }

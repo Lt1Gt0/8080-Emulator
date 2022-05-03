@@ -9,7 +9,7 @@ OBJ_DIR = obj
 #Compiler and linker things
 CC = gcc
 CCFLAGS = -g -o0#-g -Wall -Wextra
-CCFLAGS += 
+SDL = -lSDL2main -lSDL2 #-lSDL_image -lSDL_ttf
 LD = ld
 LDFLAGS = 
 INCLUDES = -Isrc/headers
@@ -30,7 +30,7 @@ Emulator: $(BUILD_DIR)/$(OBJ_NAME)
 $(BUILD_DIR)/$(OBJ_NAME): $(OBJS)
 	@ echo ~~~~~ LINKING $^ ~~~~~
 	@ mkdir -p $(@D)
-	$(CC) $(INCLUDES) $^ -o $@
+	$(CC) $(INCLUDES) $(SDL) $^ -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@ echo ~~~~~ COMPILING $^ ~~~~~

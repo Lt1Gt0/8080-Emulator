@@ -194,6 +194,10 @@ int UNDEFINED_OPCODE(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uin
  */
 int MOV(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
+    /* 
+    01 DDD SSS
+    00 111 000 >> 3 = DDD
+    */
     uint8_t dstIdentifier = (0x38 & opcode) >> 3;
     uint8_t srcIdentifier = (0x07 & opcode);
 
