@@ -18,8 +18,6 @@
 #define VRAM_OFFSET     0x2400 // Start address of VRAM
 #define VRAM_SIZE       0x1C00 // 2400 - 3FFF (256 * 28) or (VRAM_OFFSET - (WINDOW_HEIGHT * WINDOW_WIDTH) / sizeof(byte)) 
 #define VRAM_DELAY      0x0009 // 112 Hz for 1000 ms
-#define TICK            (1000.0 / 60.0)
-#define CYCLES_PER_MS   2000
 #define HALF_1          0x0002 // Pending interrupt to call rst 1
 #define FULL_2          0x0004 // Pending interrupt to call rst 2
 
@@ -40,15 +38,12 @@ Set up key mapping for sdl events
 */
 
 typedef struct {
-    uint32_t wFlags;
     SDL_Window* window;
     SDL_Surface* surface;
-    SDL_Surface* windowSurface;
-    SDL_DisplayMode displayMode;
     uint32_t* pixels; 
-    uint8_t quit; // Event on quit
-    // SDL EVENTS
-    // SDL TIMER
+    SDL_Event event;
+    uint8_t quit;
+    SDL_TimerID vRAMTimer;
 }InvaderWindow;
 
 typedef struct {
@@ -72,14 +67,17 @@ typedef struct {
 int LoadSpaceInvaders(State8080* state);
 void PrepareROM(State8080* state);
 
-int InitializeInvaderWindow();
-void InvadersInputHandler();
-
-void DrawVideoRAM(State8080* state);
-void EmulateShiftRegister(State8080* state);
+InvaderWindow* InitInvaderWindow();
+void InvadersInputHandler(SDL_KeyboardEvent event);
+void InvaderEventHandler(State8080* state, InvaderWindow* window);
+void SetPixel(uint32_t* pix, uint32_t x, uint32_t y, uint8_t state);
+void DrawVideoRAM(State8080* state, uint32_t* pixels);
+uint32_t UpdateVRAM(uint32_t interval, UNUSED void* param);
+void DestroyWindow(InvaderWindow* window);
 
 uint8_t InvadersIn(uint8_t port);
 void InvadersOut(uint8_t port, uint8_t data);
 
+void run(State8080* state, long cycles);
 
 #endif // __SPACE_INVADERS_H

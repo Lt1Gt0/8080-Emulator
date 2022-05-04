@@ -1,12 +1,12 @@
 #include "SpaceInvaders/spaceinvaders.h"
 #include "8080/memory.h"
+#include "8080/8080.h"
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
 
 static PortIO gamePorts;
-static InvaderWindow mainWindow;
 
 int LoadSpaceInvaders(State8080* state)
 {
@@ -58,153 +58,144 @@ void PrepareROM(State8080* state)
     rewind(FinalROM);
 }
 
-int InitializeInvaderWindow()
+InvaderWindow* InitInvaderWindow()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    // Initialize space for window
+    InvaderWindow* mainWindow = (InvaderWindow*)calloc(1, sizeof(InvaderWindow));
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         fprintf(stderr, "Error: Could not initialize SDL - %s\n", SDL_GetError());
-        exit(-1);
+        return 0x0;
     }
 
-    mainWindow.window = SDL_CreateWindow("Space Invaders", 
+    mainWindow->window = SDL_CreateWindow("Space Invaders", 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
         WINDOW_WIDTH, WINDOW_HEIGHT, 0); // No flags for now
 
-    if (!mainWindow.window) {
+    if (!mainWindow->window) {
         fprintf(stderr, "Error: Could not intialize main window - %s\n", SDL_GetError());
-        exit(-1);
+        SDL_Quit();
+        return 0x0;
     }
 
-    mainWindow.windowSurface = SDL_GetWindowSurface(mainWindow.window);
+    mainWindow->surface = SDL_GetWindowSurface(mainWindow->window);
 
-    if (!mainWindow.windowSurface) {
+    if (mainWindow->surface == NULL) {
         fprintf(stderr, "Error: Could not initialize window surface - %s\n", SDL_GetError());
         exit(-1);
     }
 
-    mainWindow.surface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_WIDTH, 32, 0, 0, 0, 0);
+    mainWindow->pixels = mainWindow->surface->pixels;
 
-    return WINDOW_INIT_SUCCESS;
+    return mainWindow;
 }
 
-void InvadersInputHandler()
+void InvadersInputHandler(SDL_KeyboardEvent event)
 {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-        case SDL_QUIT:
-            exit(0);
+    switch (event.type) {
+    case SDL_QUIT:
+        exit(0);
+        break;
+    case SDL_KEYDOWN:
+        switch (event.keysym.sym) {
+        case 'c': // coin in
+            gamePorts.port1 |= 1;
             break;
-        case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-            case 'c': // coin in
-                gamePorts.port1 |= 1;
-                break;
-            case 's': // P1 Start
-                gamePorts.port1 |= 1 << 2;
-                break;
-            case 'w': // P1 Shoot
-                gamePorts.port1 |= 1 << 4;
-                break;
-            case 'a': // P1 Left
-                gamePorts.port1 |= 1 << 5;
-                break;
-            case 'd': // P1 Right
-                gamePorts.port1 |= 1 << 6;
-                break;
-            case SDLK_LEFT: // P2 Left
-                gamePorts.port2 |= 1 << 5;
-                break;
-            case SDLK_RIGHT: // P2 Right
-                gamePorts.port2 |= 1 << 6;
-                break;
-            case SDLK_RETURN: // P2 Start
-                gamePorts.port1 |= 1 << 1;
-                break;
-            case SDLK_UP: // P2 Shoot
-                gamePorts.port2 |= 1 << 4;
-                break;
-            }
+        case 's': // P1 Start
+            gamePorts.port1 |= 1 << 2;
             break;
-        case SDL_KEYUP:
-            switch (event.key.keysym.sym) {
-            case 'c': // coin in
-                gamePorts.port1 &= ~(1);
-                break;
-            case 's': // P1 Start
-                gamePorts.port1 &= ~(1 << 2);
-                break;
-            case 'w': // P1 Shoot
-                gamePorts.port1 &= ~(1 << 4);
-                break;
-            case 'a': // P1 Left
-                gamePorts.port1 &= ~(1 << 5);
-                break;
-            case 'd': // P1 Right
-                gamePorts.port1 &= ~(1 << 6);
-                break;
-            case SDLK_LEFT: // P2 Left
-                gamePorts.port2 &= ~(1 << 5);
-                break;
-            case SDLK_RIGHT: // P2 Right
-                gamePorts.port2 &= ~(1 << 6);
-                break;
-            case SDLK_RETURN: // P2 Start
-                gamePorts.port1 &= ~(1 << 1);
-                break;
-            case SDLK_UP: // P2 Shoot
-                gamePorts.port2 &= ~(1 << 4);
-                break;
-            }
+        case 'w': // P1 Shoot
+            gamePorts.port1 |= 1 << 4;
             break;
-        default:
+        case 'a': // P1 Left
+            gamePorts.port1 |= 1 << 5;
+            break;
+        case 'd': // P1 Right
+            gamePorts.port1 |= 1 << 6;
+            break;
+        case SDLK_LEFT: // P2 Left
+            gamePorts.port2 |= 1 << 5;
+            break;
+        case SDLK_RIGHT: // P2 Right
+            gamePorts.port2 |= 1 << 6;
+            break;
+        case SDLK_RETURN: // P2 Start
+            gamePorts.port1 |= 1 << 1;
+            break;
+        case SDLK_UP: // P2 Shoot
+            gamePorts.port2 |= 1 << 4;
             break;
         }
+
+        break;
+    case SDL_KEYUP:
+        switch (event.keysym.sym) {
+        case 'c': // coin in
+            gamePorts.port1 &= ~(1);
+            break;
+        case 's': // P1 Start
+            gamePorts.port1 &= ~(1 << 2);
+            break;
+        case 'w': // P1 Shoot
+            gamePorts.port1 &= ~(1 << 4);
+            break;
+        case 'a': // P1 Left
+            gamePorts.port1 &= ~(1 << 5);
+            break;
+        case 'd': // P1 Right
+            gamePorts.port1 &= ~(1 << 6);
+            break;
+        case SDLK_LEFT: // P2 Left
+            gamePorts.port2 &= ~(1 << 5);
+            break;
+        case SDLK_RIGHT: // P2 Right
+            gamePorts.port2 &= ~(1 << 6);
+            break;
+        case SDLK_RETURN: // P2 Start
+            gamePorts.port1 &= ~(1 << 1);
+            break;
+        case SDLK_UP: // P2 Shoot
+            gamePorts.port2 &= ~(1 << 4);
+            break;
+        }
+
+        break;
+    default:
+        break;
     }
 }
 
-void DrawVideoRAM(State8080* state)
+void InvaderEventHandler(State8080* state, InvaderWindow* window)
 {
-    uint32_t* pixel = mainWindow.surface->pixels;
+    switch (window->event.type) {
+        case SDL_QUIT:
+            window->quit = 1;
+            break;
+        case SDL_USEREVENT:
+            if (window->event.user.code == 0) {
+                state->int_pend |= (uintptr_t)(window->event.user.data1);
 
-    // int offset = ROM_OFFSET;
-    int offset = VRAM_OFFSET;
-    for (int col = 0; col < WINDOW_WIDTH; col++) {
-        for (int row = WINDOW_HEIGHT; row > 0; row-=8) {
-            for (int i = 0; i < 8; i++) {
-                int idx = (row - i) * WINDOW_WIDTH + col;
-
-                if(MemRead(&state->memory, offset) & 1 >> i) {
-                    pixel[idx] = PIX_GREEN;
-                } else {
-                    pixel[idx] = PIX_BLACK;
+                // Update app window for every full update
+                if ((uintptr_t)(window->event.user.data1) == FULL_2) {
+                    DrawVideoRAM(state, window->pixels);
+                    SDL_UpdateWindowSurface(window->window);
                 }
             }
-            offset++;
-        }
-        // offset++;
-    }
 
-    SDL_BlitSurface(mainWindow.surface, NULL, mainWindow.windowSurface, NULL);
-    if (SDL_UpdateWindowSurface(mainWindow.window)) {
-        fprintf(stderr, "Error Updating window: %s\n", SDL_GetError());
-    }
-}
+            break;
+        case SDL_KEYDOWN:
+            fprintf(stdout, "Key [%s] pressed, isfake %d\n", window->event.key.keysym.sym, window->event.key.repeat);
+            if (!window->event.key.repeat) {
+                InvadersInputHandler(window->event.key);
+            }
 
-void EmulateShiftRegister(State8080* state)
-{
-    static uint16_t shiftReg;
-    static int shiftAmount;
-
-    if (MemRead(&state->memory, state->pc) == 0xD3) {
-        if (MemRead(&state->memory, state->pc + 1) == 2) {
-            shiftAmount = state->a;
-        } else if (MemRead(&state->memory, state->pc + 1) == 4) {
-            shiftReg =  (state->a << 8) | (shiftReg >> 8);
-        }
-    } else if (MemRead(&state->memory, state->pc) == 0xDB) {
-        if (MemRead(&state->memory, state->pc + 1) == 3) {
-            state->a = shiftReg >> (8 - shiftAmount); 
-        }
+            break;
+        case SDL_KEYUP:
+            fprintf(stdout, "Key: %c realeased\n", window->event.key.keysym);
+            InvadersInputHandler(window->event.key);
+            break;
+        default:
+            fprintf(stderr, "Unhandled Event type\n");
     }
 }
 
@@ -234,13 +225,90 @@ void InvadersOut(uint8_t port, uint8_t data)
     fprintf(stdout, "Invaders OUT: Port: %X, Data: %X", port, data);
     switch (port) {
     case 2:
+        assert(data <= 7);
+        gamePorts.shiftConfig = data;
+        break;
     case 3:
+        gamePorts.port3 = data;
+        break;
     case 4:
+        gamePorts.y = gamePorts.x;
+        gamePorts.x = data;
+        break;
     case 5:
+        gamePorts.port5 = data;
+        break;
     case 6:
         break;
     default:
         fprintf(stderr, "UNKNOWN PORT: %X", port);
         exit(-1);
     }
+}
+
+void SetPixel(uint32_t* pix, uint32_t x, uint32_t y, uint8_t state)
+{
+    pix[x + y * WINDOW_HEIGHT] = state ? PIX_GREEN : PIX_BLACK;
+}
+
+void DrawVideoRAM(State8080* state, uint32_t* pixels)
+{
+    uint32_t index = 0;
+    uintptr_t vramStart = (uintptr_t)MemRef(&state->memory, VRAM_OFFSET);
+    uintptr_t vramEnd = vramStart + VRAM_SIZE;
+    uint8_t vramData;
+
+    static uint32_t temp[WINDOW_WIDTH * WINDOW_HEIGHT];
+
+    while (vramStart < vramEnd) {
+        vramData = *(uint8_t*)vramStart;
+
+        temp[index++] = (vramData & 0x1) ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x2) >> 1 ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x4) >> 2 ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x8) >> 3 ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x16) >> 4 ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x32) >> 5 ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x64) >> 6 ? PIX_GREEN : PIX_BLACK;
+        temp[index++] = (vramData & 0x128) >> 7 ? PIX_GREEN : PIX_BLACK;
+        
+        vramStart++;
+    }
+
+    // Rotation moment
+
+    index = 0;
+    for (int16_t x = (WINDOW_WIDTH - 1); x >= 0; x--) {
+        for (int16_t y = 0; y < WINDOW_HEIGHT; y++) {
+            pixels[index++] = temp[x + (y * WINDOW_HEIGHT)];
+        }
+    }
+}
+
+uint32_t UpdateVRAM(uint32_t interval, UNUSED void* param)
+{
+    static uintptr_t updateState = HALF_1;
+
+    SDL_Event event;
+    SDL_UserEvent uEvent;
+
+    uEvent.type = SDL_USEREVENT;
+    uEvent.code = 0;
+    uEvent.data1 = (void*)updateState;
+
+    event.type = SDL_USEREVENT;
+    event.user = uEvent;
+
+    SDL_PushEvent(&event);
+
+    updateState = (updateState == HALF_1) ? FULL_2 : HALF_1;
+
+    return interval;
+}
+
+void DestroyWindow(InvaderWindow* window)
+{
+    SDL_DestroyWindow(window->window);
+    free(window);
+    SDL_Quit();
 }

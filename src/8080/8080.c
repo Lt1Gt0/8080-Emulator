@@ -49,6 +49,13 @@ int ExecuteInstruction(State8080* state)
     return status;
 }
 
+void GenerateInterrupt(State8080* state, uint16_t addr)
+{
+    PUSH(state, state->pc, MemRead(&state->memory, state->pc + 1));
+    state->pc = addr;
+    state->int_enable = 0;
+}
+
 void ioIN(UNUSED uint8_t port)
 {
     fprintf(stderr, "UNIMPLEMENTED IN INSTRUCTION");
@@ -58,12 +65,4 @@ uint8_t ioOUT(UNUSED uint8_t port, UNUSED uint8_t data)
 {
     fprintf(stderr, "UNIMPLEMENTED OUT INSTRUCTION");
     return 0x0;
-}
-
-void run(long cycles)
-{
-    int i = 0;
-    while (i < cycles) {
-        // EmulateShiftRegister();
-    }
 }
