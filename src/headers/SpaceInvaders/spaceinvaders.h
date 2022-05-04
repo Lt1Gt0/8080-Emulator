@@ -69,6 +69,7 @@ int LoadSpaceInvaders(State8080* state);
 void PrepareROM(State8080* state);
 
 InvaderWindow* InitInvaderWindow();
+void InitGamePorts();
 void InvadersInputHandler(SDL_KeyboardEvent event);
 void InvaderEventHandler(State8080* state, InvaderWindow* window);
 void SetPixel(uint32_t* pix, uint32_t x, uint32_t y, uint8_t state);

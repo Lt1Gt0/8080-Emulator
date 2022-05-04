@@ -3,11 +3,11 @@
 #include "Debug/debug.h"
 #include "SpaceInvaders/spaceinvaders.h"
 
-State8080* Init8080(uint16_t pc, uint16_t sp, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint8_t))
+State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint8_t))
 {
     State8080* state = (State8080*)calloc(1, sizeof(State8080));
     state->pc = pc;
-    state->sp = sp;
+    state->sp = 0xF000;
 
     state->ProcIN = &ioIN;
     state->ProcOUT = &ioOUT;
@@ -36,6 +36,7 @@ int ExecuteInstruction(State8080* state)
             }
             i++;
         }
+        abort();
     }
 
     uint8_t opcode = MemRead(&state->memory, state->pc);

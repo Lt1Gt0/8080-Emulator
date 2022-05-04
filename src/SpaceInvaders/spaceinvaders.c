@@ -86,23 +86,20 @@ InvaderWindow* InitInvaderWindow()
     }
 
     mainWindow->pixels = mainWindow->surface->pixels;
-    
+
+    if (mainWindow->surface->format->format != SDL_PIXELFORMAT_RGB888) {
+        fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
+    }
+
+   
+    return mainWindow;
+}
+
+void InitGamePorts()
+{
     gamePorts.port0 = 0x0E;
     gamePorts.port1 = 0x09;
     gamePorts.port2 = 0x03;
-
-    uint32_t* pixels = mainWindow->surface->pixels;
-    for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
-        for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
-            SetPixel(pixels, x, y, 1);
-        }
-    }
-    
-    SDL_UpdateWindowSurface(mainWindow->window);
-    mainWindow->vRAMTimer = SDL_AddTimer(VRAM_DELAY, UpdateVRAM, NULL);
-
-
-    return mainWindow;
 }
 
 void InvadersInputHandler(SDL_KeyboardEvent event)
@@ -183,37 +180,35 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
 
 void InvaderEventHandler(State8080* state, InvaderWindow* window)
 {
-    fprintf(stderr, "Window Event: %X\n", window->event.type);
     switch (window->event.type) {
-        case SDL_QUIT:
-            window->quit = 1;
-            break;
-        case SDL_USEREVENT:
-            if (window->event.user.code == 0) {
-                state->int_pend |= (uintptr_t)(window->event.user.data1);
+    case SDL_QUIT:
+        window->quit = 1;
+        break;
+    case SDL_USEREVENT:
+        if (window->event.user.code == 0) {
+            state->int_pend |= (uintptr_t)(window->event.user.data1);
 
-                // Update app window for every full update
-                if ((uintptr_t)(window->event.user.data1) == FULL_2) {
-                    DrawVideoRAM(state, window->pixels);
-                    SDL_UpdateWindowSurface(window->window);
-                }
+            // Update app window for every full update
+            if ((uintptr_t)(window->event.user.data1) == FULL_2) {
+                DrawVideoRAM(state, window->pixels);
+                SDL_UpdateWindowSurface(window->window);
             }
+        }
 
-            break;
-        case SDL_KEYDOWN:
-            fprintf(stdout, "Key [%s] pressed, isfake %d\n", window->event.key.keysym.sym, window->event.key.repeat);
-            if (!window->event.key.repeat) {
-                InvadersInputHandler(window->event.key);
-            }
-
-            break;
-        case SDL_KEYUP:
-            fprintf(stdout, "Key: %c realeased\n", window->event.key.keysym);
+        break;
+    case SDL_KEYDOWN:
+        fprintf(stderr, "Key [%c] pressed, isfake %X\n", window->event.key.keysym.sym, window->event.key.repeat);
+        if (!window->event.key.repeat) {
             InvadersInputHandler(window->event.key);
-            break;
-        default:
-            fprintf(stderr, "Unhandled Event type: %X\n", window->event.type);
-            // fprintf(stderr, "Unhandled Event type: %s\n", window->event.type);
+        }
+
+        break;
+    case SDL_KEYUP:
+        fprintf(stderr, "Key: %c realeased\n", window->event.key.keysym.sym);
+        InvadersInputHandler(window->event.key);
+        break;
+    default:
+        fprintf(stderr, "Unhandled Event type: %X\n", window->event.type);
     }
 }
 
