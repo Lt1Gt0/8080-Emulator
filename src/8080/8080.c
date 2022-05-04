@@ -59,3 +59,11 @@ uint8_t ioOUT(UNUSED uint8_t port, UNUSED uint8_t data)
     fprintf(stderr, "UNIMPLEMENTED OUT INSTRUCTION");
     return 0x0;
 }
+
+void run(long cycles)
+{
+    int i = 0;
+    while (i < cycles) {
+        // EmulateShiftRegister();
+    }
+}

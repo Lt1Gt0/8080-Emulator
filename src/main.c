@@ -14,8 +14,16 @@ int main(int argc, char** argv)
         exit(-1);  
     } 
 
+    uint32_t prevTick = SDL_GetTicks();
     while (running) {
-        InvaderEventLoop();
+        if((SDL_GetTick() - prevTick) != TICK) {
+            prevTick = SDL_GetTick();
+
+            
+
+            InvadersInputHandler();
+            DrawVideoRAM(state);
+        }
         // if (!state->halt && ExecuteInstruction(state) == 1) {
 
         // } else {

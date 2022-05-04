@@ -1,4 +1,5 @@
 #include "SpaceInvaders/spaceinvaders.h"
+#include "8080/memory.h"
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -85,7 +86,7 @@ int InitializeInvaderWindow()
     return WINDOW_INIT_SUCCESS;
 }
 
-void InvaderInputHandler()
+void InvadersInputHandler()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -159,7 +160,52 @@ void InvaderInputHandler()
             break;
         }
     }
-    return 0;
+}
+
+void DrawVideoRAM(State8080* state)
+{
+    uint32_t* pixel = mainWindow.surface->pixels;
+
+    // int offset = ROM_OFFSET;
+    int offset = VRAM_OFFSET;
+    for (int col = 0; col < WINDOW_WIDTH; col++) {
+        for (int row = WINDOW_HEIGHT; row > 0; row-=8) {
+            for (int i = 0; i < 8; i++) {
+                int idx = (row - i) * WINDOW_WIDTH + col;
+
+                if(MemRead(&state->memory, offset) & 1 >> i) {
+                    pixel[idx] = PIX_GREEN;
+                } else {
+                    pixel[idx] = PIX_BLACK;
+                }
+            }
+            offset++;
+        }
+        // offset++;
+    }
+
+    SDL_BlitSurface(mainWindow.surface, NULL, mainWindow.windowSurface, NULL);
+    if (SDL_UpdateWindowSurface(mainWindow.window)) {
+        fprintf(stderr, "Error Updating window: %s\n", SDL_GetError());
+    }
+}
+
+void EmulateShiftRegister(State8080* state)
+{
+    static uint16_t shiftReg;
+    static int shiftAmount;
+
+    if (MemRead(&state->memory, state->pc) == 0xD3) {
+        if (MemRead(&state->memory, state->pc + 1) == 2) {
+            shiftAmount = state->a;
+        } else if (MemRead(&state->memory, state->pc + 1) == 4) {
+            shiftReg =  (state->a << 8) | (shiftReg >> 8);
+        }
+    } else if (MemRead(&state->memory, state->pc) == 0xDB) {
+        if (MemRead(&state->memory, state->pc + 1) == 3) {
+            state->a = shiftReg >> (8 - shiftAmount); 
+        }
+    }
 }
 
 uint8_t InvadersIn(uint8_t port)

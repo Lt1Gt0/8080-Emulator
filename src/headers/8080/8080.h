@@ -11,4 +11,6 @@ int ExecuteInstruction(State8080* state);
 void ioIN(UNUSED uint8_t port);
 uint8_t ioOUT(UNUSED uint8_t port, UNUSED uint8_t data);
 
+void run(long cycles);
+
 #endif // __8080_H

@@ -18,6 +18,8 @@
 #define VRAM_OFFSET     0x2400 // Start address of VRAM
 #define VRAM_SIZE       0x1C00 // 2400 - 3FFF (256 * 28) or (VRAM_OFFSET - (WINDOW_HEIGHT * WINDOW_WIDTH) / sizeof(byte)) 
 #define VRAM_DELAY      0x0009 // 112 Hz for 1000 ms
+#define TICK            (1000.0 / 60.0)
+#define CYCLES_PER_MS   2000
 #define HALF_1          0x0002 // Pending interrupt to call rst 1
 #define FULL_2          0x0004 // Pending interrupt to call rst 2
 
@@ -71,11 +73,13 @@ int LoadSpaceInvaders(State8080* state);
 void PrepareROM(State8080* state);
 
 int InitializeInvaderWindow();
-void InvaderEventLoop();
+void InvadersInputHandler();
+
+void DrawVideoRAM(State8080* state);
+void EmulateShiftRegister(State8080* state);
 
 uint8_t InvadersIn(uint8_t port);
 void InvadersOut(uint8_t port, uint8_t data);
-
 
 
 #endif // __SPACE_INVADERS_H
