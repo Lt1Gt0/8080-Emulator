@@ -3,6 +3,7 @@
 #define __SPACE_INVADERS_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_timer.h>
 #include <stdint.h>
 #include <stdio.h>
 #include "8080/cpu.h"

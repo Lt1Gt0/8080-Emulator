@@ -49,13 +49,13 @@ int ExecuteInstruction(State8080* state)
     return status;
 }
 
-void ioIN(UNUSED uint8_t port)
+uint8_t ioIN(UNUSED uint8_t port)
 {
     fprintf(stderr, "UNIMPLEMENTED IN INSTRUCTION");
+    return 0x0;
 }
 
-uint8_t ioOUT(UNUSED uint8_t port, UNUSED uint8_t data)
+void ioOUT(UNUSED uint8_t port, UNUSED uint8_t data)
 {
     fprintf(stderr, "UNIMPLEMENTED OUT INSTRUCTION");
-    return 0x0;
 }

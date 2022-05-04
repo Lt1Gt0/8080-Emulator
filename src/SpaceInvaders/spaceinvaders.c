@@ -2,7 +2,6 @@
 #include "8080/memory.h"
 #include "8080/8080.h"
 #include <stdlib.h>
-#include <SDL2/SDL_timer.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
@@ -138,6 +137,8 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         case SDLK_UP: // P2 Shoot
             gamePorts.port2 |= 1 << 4;
             break;
+        default:
+            break;
         }
 
         break;
@@ -170,7 +171,10 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         case SDLK_UP: // P2 Shoot
             gamePorts.port2 &= ~(1 << 4);
             break;
+        default:
+            break;
         }
+
         break;
     default:
         break;
@@ -179,6 +183,7 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
 
 void InvaderEventHandler(State8080* state, InvaderWindow* window)
 {
+    fprintf(stderr, "Window Event: %X\n", window->event.type);
     switch (window->event.type) {
         case SDL_QUIT:
             window->quit = 1;
@@ -207,7 +212,7 @@ void InvaderEventHandler(State8080* state, InvaderWindow* window)
             InvadersInputHandler(window->event.key);
             break;
         default:
-            fprintf(stderr, "Unhandled Event type\n");
+            fprintf(stderr, "Unhandled Event type: %X\n", window->event.type);
             // fprintf(stderr, "Unhandled Event type: %s\n", window->event.type);
     }
 }
@@ -293,7 +298,7 @@ void DrawVideoRAM(State8080* state, uint32_t* pixels)
     index = 0;
     for (int16_t x = (WINDOW_WIDTH - 1); x >= 0; x--) {
         for (int16_t y = 0; y < WINDOW_HEIGHT; y++) {
-            pixels[index++] = temp[x + (y * WINDOW_HEIGHT)];
+            pixels[index++] = temp[x + (y * WINDOW_WIDTH)];
         }
     }
 }
