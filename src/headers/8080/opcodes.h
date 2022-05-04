@@ -143,7 +143,14 @@ void SetFlags(State8080* state, uint32_t stateFinal, uint8_t flags)
 
 void auxSet(State8080* state, uint32_t baseVal, uint32_t dif)
 {
+    uint8_t xor = (baseVal ^ dif) & 0x10;
+    uint8_t sum = (baseVal + dif) & 0x10;
 
+    if (xor != sum) {
+        state->PSW.ac = 1;
+    } else {
+        state->PSW.ac = 0;
+    }
 }
 
 uint8_t PackPSW(ProcStatusWord psw)
@@ -373,7 +380,7 @@ int ADD(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     tmp += state->a;
 
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    //TODO: Affect AC flag
+    auxSet(state, state->a, *(ByteRegRef(state, regIdentifier)));
 
     state->a = tmp;
     PRINT_DECOMPILED(basePC, "ADD r(%X)\n", regIdentifier);
@@ -394,7 +401,7 @@ int ADI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     imm += state->a;
 
     SetFlags(state, imm, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    //TODO: Affect AC flag
+    auxSet(state, state->a, MemRead(&state->memory, basePC + 1));
 
     state->a = imm;
     PRINT_DECOMPILED(basePC, "ADI (%X)\n", imm);
@@ -416,7 +423,7 @@ int ADC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     tmp += state->a + state->PSW.cy;
     
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    auxSet(state, state->a, *(ByteRegRef(state, regIdentifier)) + state->PSW.cy);
 
     state->a = tmp;
     PRINT_DECOMPILED(basePC, "ADC (%X)\n", tmp);
@@ -436,7 +443,7 @@ int ACI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     imm += state->a + state->PSW.cy;
 
     SetFlags(state, imm, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    auxSet(state, state->a, MemRead(&state->memory, basePC + 1) + state->PSW.cy);
 
     state->a = imm;
     PRINT_DECOMPILED(basePC, "ACI (%X)\n", imm);
@@ -494,7 +501,7 @@ int DCR(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     tmp -= 1;
 
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG);
-    // TODO: Affect AC flag
+    auxSet(state, tmp + 1, -1);
 
     *reg = (uint8_t)tmp;
     PRINT_DECOMPILED(basePC, "DCR r(%X)\n", regIdentifier);
@@ -573,7 +580,7 @@ int ANA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     base &= target;
 
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    state->PSW.ac = ((base | target) & 0x08) ? 1 : 0;
 
     state->a = target;
     PRINT_DECOMPILED(basePC, "ANA r(%X)\n", regIdentifier);
@@ -591,12 +598,12 @@ int ANA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 int ANI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint8_t imm = MemRead(&state->memory, basePC + 1);
+    uint8_t base = state->a;
     state->a &= imm;
 
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    state->PSW.ac = ((base | imm) & 0x08) ? 1 : 0;
 
-    // state->a = tmp;
     PRINT_DECOMPILED(basePC, "ANI (%X)\n", imm)
     return 1;
 }
@@ -619,7 +626,7 @@ int XRA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     base ^= target;
 
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    state->PSW.ac = 0;
 
     state->a = target;
     PRINT_DECOMPILED(basePC, "XRA r(%X)\n", regIdentifier)
@@ -640,7 +647,7 @@ int XRI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     state->a ^= imm;
 
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    state->PSW.ac = 0;
 
     PRINT_DECOMPILED(basePC, "XRI (%X)\n", imm);
     return 1;
@@ -679,7 +686,7 @@ int CMP(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     uint8_t res = state->a - *reg;
 
     SetFlags(state, res, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flag
+    auxSet(state, state->a, -res);
 
     PRINT_DECOMPILED(basePC, "CMP (%X)\n", regIdentifier);
     return 1;
@@ -699,7 +706,7 @@ int CPI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     uint16_t res = state->a - imm;
 
     SetFlags(state, res, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    // TODO: Affect AC flagi
+    auxSet(state, state->a, -res);
 
     PRINT_DECOMPILED(basePC, "CPI (%X)\n", imm);
     return 1;

@@ -8,22 +8,11 @@ int main(int argc, char** argv)
     State8080* state = Init8080(ROM_OFFSET, STACK_START, &InvadersIn, &InvadersOut);
     LoadSpaceInvaders(state);
     InvaderWindow* mainWindow = InitInvaderWindow();
-    if (mainWindow == 0x0)
-    {
+    
+    if (mainWindow == 0x0) {
         fprintf(stderr, "Error initializing space invaders window\n");
         exit(-1);  
-    } 
-
-    uint32_t* pixels = mainWindow->surface->pixels;
-    for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
-        for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
-            SetPixel(pixels, x, y, 1);
-        }
-    }
-
-    SDL_UpdateWindowSurface(mainWindow->window);
-
-    mainWindow->vRAMTimer = SDL_AddTimer(VRAM_DELAY, UpdateVRAM, NULL);
+    }  
 
     while (!mainWindow->quit) {
         if (!state->halt && ExecuteInstruction(state) == 1) {

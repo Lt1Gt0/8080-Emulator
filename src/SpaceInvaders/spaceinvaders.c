@@ -2,6 +2,7 @@
 #include "8080/memory.h"
 #include "8080/8080.h"
 #include <stdlib.h>
+#include <SDL2/SDL_timer.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
@@ -70,7 +71,7 @@ InvaderWindow* InitInvaderWindow()
 
     mainWindow->window = SDL_CreateWindow("Space Invaders", 
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-        WINDOW_WIDTH, WINDOW_HEIGHT, 0); // No flags for now
+        WINDOW_HEIGHT, WINDOW_WIDTH, 0); // No flags for now
 
     if (!mainWindow->window) {
         fprintf(stderr, "Error: Could not intialize main window - %s\n", SDL_GetError());
@@ -86,6 +87,21 @@ InvaderWindow* InitInvaderWindow()
     }
 
     mainWindow->pixels = mainWindow->surface->pixels;
+    
+    gamePorts.port0 = 0x0E;
+    gamePorts.port1 = 0x09;
+    gamePorts.port2 = 0x03;
+
+    uint32_t* pixels = mainWindow->surface->pixels;
+    for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
+        for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
+            SetPixel(pixels, x, y, 1);
+        }
+    }
+    
+    SDL_UpdateWindowSurface(mainWindow->window);
+    mainWindow->vRAMTimer = SDL_AddTimer(VRAM_DELAY, UpdateVRAM, NULL);
+
 
     return mainWindow;
 }
@@ -93,24 +109,21 @@ InvaderWindow* InitInvaderWindow()
 void InvadersInputHandler(SDL_KeyboardEvent event)
 {
     switch (event.type) {
-    case SDL_QUIT:
-        exit(0);
-        break;
     case SDL_KEYDOWN:
         switch (event.keysym.sym) {
-        case 'c': // coin in
+        case SDLK_c: // coin in
             gamePorts.port1 |= 1;
             break;
-        case 's': // P1 Start
+        case SDLK_s: // P1 Start
             gamePorts.port1 |= 1 << 2;
             break;
-        case 'w': // P1 Shoot
+        case SDLK_w: // P1 Shoot
             gamePorts.port1 |= 1 << 4;
             break;
-        case 'a': // P1 Left
+        case SDLK_a: // P1 Left
             gamePorts.port1 |= 1 << 5;
             break;
-        case 'd': // P1 Right
+        case SDLK_d: // P1 Right
             gamePorts.port1 |= 1 << 6;
             break;
         case SDLK_LEFT: // P2 Left
@@ -130,19 +143,19 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         break;
     case SDL_KEYUP:
         switch (event.keysym.sym) {
-        case 'c': // coin in
+        case SDLK_c: // coin in
             gamePorts.port1 &= ~(1);
             break;
-        case 's': // P1 Start
+        case SDLK_s: // P1 Start
             gamePorts.port1 &= ~(1 << 2);
             break;
-        case 'w': // P1 Shoot
+        case SDLK_w: // P1 Shoot
             gamePorts.port1 &= ~(1 << 4);
             break;
-        case 'a': // P1 Left
+        case SDLK_a: // P1 Left
             gamePorts.port1 &= ~(1 << 5);
             break;
-        case 'd': // P1 Right
+        case SDLK_d: // P1 Right
             gamePorts.port1 &= ~(1 << 6);
             break;
         case SDLK_LEFT: // P2 Left
@@ -158,7 +171,6 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
             gamePorts.port2 &= ~(1 << 4);
             break;
         }
-
         break;
     default:
         break;
@@ -196,6 +208,7 @@ void InvaderEventHandler(State8080* state, InvaderWindow* window)
             break;
         default:
             fprintf(stderr, "Unhandled Event type\n");
+            // fprintf(stderr, "Unhandled Event type: %s\n", window->event.type);
     }
 }
 
@@ -211,7 +224,7 @@ uint8_t InvadersIn(uint8_t port)
     case 3:
         assert(gamePorts.shiftConfig <= 7);
 
-        uint8_t tmp = (uint8_t)(gamePorts.hiddenReg)>>(8 - gamePorts.shiftConfig);
+        uint8_t tmp = (uint8_t)((gamePorts.hiddenReg) >> (8 - gamePorts.shiftConfig));
         return tmp;
     default:
         fprintf(stderr, "UNKNOWN PORT: %X", port);
@@ -303,7 +316,7 @@ uint32_t UpdateVRAM(uint32_t interval, UNUSED void* param)
 
     updateState = (updateState == HALF_1) ? FULL_2 : HALF_1;
 
-    return interval;
+    return(interval);
 }
 
 void DestroyWindow(InvaderWindow* window)
