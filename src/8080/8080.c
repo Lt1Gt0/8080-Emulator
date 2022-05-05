@@ -9,15 +9,16 @@ State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint
     state->pc = pc;
     state->sp = 0xF000;
 
-    state->ProcIN = &ioIN;
-    state->ProcOUT = &ioOUT;
-
     if (in != NULL) {
         state->ProcIN = in;
-    }
+    } else {
+        state->ProcIN = &ioIN;
+    } 
 
     if (out != NULL) {
         state->ProcOUT = out;
+    } else {
+        state->ProcOUT = &ioOUT;
     }
     return state;
 }
@@ -53,10 +54,11 @@ int ExecuteInstruction(State8080* state)
 uint8_t ioIN(UNUSED uint8_t port)
 {
     fprintf(stderr, "UNIMPLEMENTED IN INSTRUCTION");
-    return 0x0;
+    return 0;
 }
 
 void ioOUT(UNUSED uint8_t port, UNUSED uint8_t data)
 {
     fprintf(stderr, "UNIMPLEMENTED OUT INSTRUCTION");
+    return;
 }

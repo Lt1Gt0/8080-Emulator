@@ -86,12 +86,6 @@ InvaderWindow* InitInvaderWindow()
     }
 
     mainWindow->pixels = mainWindow->surface->pixels;
-
-    if (mainWindow->surface->format->format != SDL_PIXELFORMAT_RGB888) {
-        fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
-    }
-
-   
     return mainWindow;
 }
 
@@ -176,6 +170,8 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
     default:
         break;
     }
+
+    fprintf(stderr, "GamePorts after: %d | %d\n", gamePorts.port1, gamePorts.port2);
 }
 
 void InvaderEventHandler(State8080* state, InvaderWindow* window)
@@ -214,18 +210,23 @@ void InvaderEventHandler(State8080* state, InvaderWindow* window)
 
 uint8_t InvadersIn(uint8_t port)
 {
+    fprintf(stderr, "Invaders IN - Port: %X\n", port);
     switch (port) {
     case 0:
         return gamePorts.port0;
+        break;
     case 1:
         return gamePorts.port1;
+        break;
     case 2:
         return gamePorts.port2;
+        break;
     case 3:
         assert(gamePorts.shiftConfig <= 7);
 
         uint8_t tmp = (uint8_t)((gamePorts.hiddenReg) >> (8 - gamePorts.shiftConfig));
         return tmp;
+        break;
     default:
         fprintf(stderr, "UNKNOWN PORT: %X", port);
         exit(-1);
@@ -235,7 +236,7 @@ uint8_t InvadersIn(uint8_t port)
 
 void InvadersOut(uint8_t port, uint8_t data)
 {
-    fprintf(stdout, "Invaders OUT: Port: %X, Data: %X", port, data);
+    fprintf(stderr, "Invaders OUT - Port: %X, Data: %X\n", port, data);
     switch (port) {
     case 2:
         assert(data <= 7);

@@ -1031,7 +1031,7 @@ int IN(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint8_t port = MemRead(&state->memory, basePC + 1);
     state->a = state->ProcIN(port);
-    PRINT_DECOMPILED(basePC, "IN %x\n", port);
+    PRINT_DECOMPILED(basePC, "IN %X\n", port);
     return 1;
 }
 

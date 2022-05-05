@@ -8,14 +8,23 @@ int main(int argc, char** argv)
     State8080* state = Init8080(ROM_OFFSET, &InvadersIn, &InvadersOut);
     InvaderWindow* mainWindow = InitInvaderWindow();
     
-    if (mainWindow == 0x0) {
+    if (mainWindow->window == 0x0) {
         fprintf(stderr, "Error initializing space invaders window\n");
         exit(-1);  
     }  
 
     InitGamePorts();
-    
-    LoadSpaceInvaders(state);
+    if (mainWindow->surface->format->format != SDL_PIXELFORMAT_RGB888) {
+        fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
+    }
+
+    int romfd;
+    if((romfd = LoadSpaceInvaders(state)) == -1)
+    {
+        fprintf(stderr, "Could not load rom\n");
+        exit(-1);
+    }
+
     uint32_t* pixels = mainWindow->surface->pixels;
     for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
         for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
