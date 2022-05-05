@@ -2,11 +2,12 @@
 #ifndef __OPCODES_H
 #define __OPCODES_H
 
-#include <stdint.h>
+// #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "cpu.h"
-#include "memory.h"
+#include <inttypes.h>
+#include "8080/8080.h"
+#include "8080/memory.h"
 #include "Debug/debug.h"
 
 #define UNDEFINED_OP_CODE "UNDF"
@@ -604,7 +605,7 @@ int ANI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
     state->PSW.ac = ((base | imm) & 0x08) ? 1 : 0;
 
-    PRINT_DECOMPILED(basePC, "ANI (%X)\n", imm)
+    PRINT_DECOMPILED(basePC, "ANI (%X)\n", imm);
     return 1;
 }
 
@@ -629,7 +630,7 @@ int XRA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     state->PSW.ac = 0;
 
     state->a = target;
-    PRINT_DECOMPILED(basePC, "XRA r(%X)\n", regIdentifier)
+    PRINT_DECOMPILED(basePC, "XRA r(%X)\n", regIdentifier);
     return 1;
 }
 

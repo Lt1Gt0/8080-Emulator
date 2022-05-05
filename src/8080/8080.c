@@ -1,7 +1,7 @@
 #include "8080/8080.h"
 #include "8080/opcodes.h"
 #include "Debug/debug.h"
-#include "SpaceInvaders/spaceinvaders.h"
+// #include "SpaceInvaders/spaceinvaders.h"
 
 State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint8_t))
 {
@@ -9,17 +9,9 @@ State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint
     state->pc = pc;
     state->sp = 0xF000;
 
-    if (in != NULL) {
-        state->ProcIN = in;
-    } else {
-        state->ProcIN = &ioIN;
-    } 
+    state->ProcIN = (in == NULL) ? &ioIN : in;
+    state->ProcOUT = (out == NULL) ? &ioOUT : out;
 
-    if (out != NULL) {
-        state->ProcOUT = out;
-    } else {
-        state->ProcOUT = &ioOUT;
-    }
     return state;
 }
 
@@ -32,7 +24,7 @@ int ExecuteInstruction(State8080* state)
         for (uint16_t mask = 0x1; mask <= 0x8; mask <<= 1) {
             if (state->int_pend & mask) {
                 uint8_t opcode = 0xC7 | (i << 3);
-                state->int_pend &= ~(mask);
+                state->int_pend &= (~mask);
                 return RST(state, 0xFFFF, opcode);
             }
             i++;

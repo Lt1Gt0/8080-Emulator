@@ -2,11 +2,9 @@
 #ifndef __SPACE_INVADERS_H
 #define __SPACE_INVADERS_H
 
+#include "8080/8080.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
-#include <stdint.h>
-#include <stdio.h>
-#include "8080/cpu.h"
 
 // Defines based off of information about space invader rom
 #define TOTAL_ROM_FILES 4
@@ -24,15 +22,14 @@
 
 #define WINDOW_WIDTH        256 // Window width, this will be rotated
 #define WINDOW_HEIGHT       224 // Window height, this will be rotated
-#define WINDOW_INIT_SUCCESS 0
 
 
 /* 
 The version of the rom that is currently loaded
 only supports the color black and green
 */
-#define PIX_GREEN       0xFF00 // RGB888 GREEN value
-#define PIX_BLACK       0x0000 // RGB888 BLACK Value
+#define PIX_GREEN 0xFF00 // RGB888 GREEN value
+#define PIX_BLACK 0x0000 // RGB888 BLACK Value
 
 /* TODO
 Set up key mapping for sdl events
@@ -45,7 +42,7 @@ typedef struct {
     SDL_Event event;
     uint8_t quit;
     SDL_TimerID vRAMTimer;
-}InvaderWindow;
+} InvaderWindow;
 
 typedef struct {
     uint8_t port0; // INPUT
@@ -69,7 +66,6 @@ int LoadSpaceInvaders(State8080* state);
 void PrepareROM(State8080* state);
 
 InvaderWindow* InitInvaderWindow();
-void InitGamePorts();
 void InvadersInputHandler(SDL_KeyboardEvent event);
 void InvaderEventHandler(State8080* state, InvaderWindow* window);
 void SetPixel(uint32_t* pix, uint32_t x, uint32_t y, uint8_t state);
@@ -79,7 +75,5 @@ void DestroyWindow(InvaderWindow* window);
 
 uint8_t InvadersIn(uint8_t port);
 void InvadersOut(uint8_t port, uint8_t data);
-
-void run(State8080* state, long cycles);
 
 #endif // __SPACE_INVADERS_H

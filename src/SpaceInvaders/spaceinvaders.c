@@ -1,12 +1,67 @@
-#include "SpaceInvaders/spaceinvaders.h"
-#include "8080/memory.h"
-#include "8080/8080.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
 
+#include "SpaceInvaders/spaceinvaders.h"
+
 static PortIO gamePorts;
+
+int main() 
+{
+    State8080* state = Init8080(ROM_OFFSET, &InvadersIn, &InvadersOut);
+    InvaderWindow* mainWindow = InitInvaderWindow();
+    
+    if (mainWindow->window == 0x0) {
+        fprintf(stderr, "Error initializing space invaders window\n");
+        exit(-1);  
+    }  
+
+    gamePorts.port0 = 0x0E;
+    gamePorts.port1 = 0x09;
+    gamePorts.port2 = 0x03;
+
+    if (mainWindow->surface->format->format != SDL_PIXELFORMAT_RGB888) {
+        fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
+    }
+
+    int romfd;
+    if ((romfd = LoadSpaceInvaders(state)) == -1) {
+        fprintf(stderr, "Could not load rom\n");
+        exit(-1);
+    }
+
+    uint32_t* pixels = mainWindow->surface->pixels;
+    for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
+        for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
+            SetPixel(pixels, x, y, 1);
+        }
+    }
+    
+    SDL_UpdateWindowSurface(mainWindow->window);
+    mainWindow->vRAMTimer = SDL_AddTimer(VRAM_DELAY, UpdateVRAM, NULL);
+
+    while (!mainWindow->quit) {
+        if (!state->halt && ExecuteInstruction(state) == 1) {
+
+        } else {
+            state->halt = 1;
+        }
+
+        if (SDL_PollEvent(&(mainWindow->event))) {
+            InvaderEventHandler(state, mainWindow);
+        }
+    }
+
+    DestroyWindow(mainWindow);
+    close(romfd);
+    free(state->memory.base);
+    free(state);
+
+    return 0;
+}
 
 int LoadSpaceInvaders(State8080* state)
 {
@@ -79,7 +134,6 @@ InvaderWindow* InitInvaderWindow()
     }
 
     mainWindow->surface = SDL_GetWindowSurface(mainWindow->window);
-
     if (mainWindow->surface == NULL) {
         fprintf(stderr, "Error: Could not initialize window surface - %s\n", SDL_GetError());
         exit(-1);
@@ -89,17 +143,9 @@ InvaderWindow* InitInvaderWindow()
     return mainWindow;
 }
 
-void InitGamePorts()
-{
-    gamePorts.port0 = 0x0E;
-    gamePorts.port1 = 0x09;
-    gamePorts.port2 = 0x03;
-}
-
 void InvadersInputHandler(SDL_KeyboardEvent event)
 {
-    switch (event.type) {
-    case SDL_KEYDOWN:
+    if (event.type == SDL_KEYDOWN) {
         switch (event.keysym.sym) {
         case SDLK_c: // coin in
             gamePorts.port1 |= 1;
@@ -131,9 +177,7 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         default:
             break;
         }
-
-        break;
-    case SDL_KEYUP:
+    } else {
         switch (event.keysym.sym) {
         case SDLK_c: // coin in
             gamePorts.port1 &= ~(1);
@@ -165,12 +209,7 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         default:
             break;
         }
-
-        break;
-    default:
-        break;
     }
-
     fprintf(stderr, "GamePorts after: %d | %d\n", gamePorts.port1, gamePorts.port2);
 }
 
@@ -214,19 +253,14 @@ uint8_t InvadersIn(uint8_t port)
     switch (port) {
     case 0:
         return gamePorts.port0;
-        break;
     case 1:
         return gamePorts.port1;
-        break;
     case 2:
         return gamePorts.port2;
-        break;
     case 3:
         assert(gamePorts.shiftConfig <= 7);
-
         uint8_t tmp = (uint8_t)((gamePorts.hiddenReg) >> (8 - gamePorts.shiftConfig));
         return tmp;
-        break;
     default:
         fprintf(stderr, "UNKNOWN PORT: %X", port);
         exit(-1);
