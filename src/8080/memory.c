@@ -18,10 +18,12 @@ uint16_t MemShortRead(VirtualMemory* mem, uint16_t offset)
 
 void MemWrite(VirtualMemory* mem, uint16_t offset, uint8_t value)
 {
-    *(uint8_t*)MemRef(mem, offset) = value;
+    uint8_t* target = (uint8_t*)MemRef(mem, offset);
+    *target = value;
 }
 
 void MemShortWrite(VirtualMemory* mem, uint16_t offset, uint16_t value)
 {
-    *(uint16_t*)MemRef(mem, offset) = value;
+    uint16_t* target = (uint16_t*)MemRef(mem, offset);
+    *target = value;
 }

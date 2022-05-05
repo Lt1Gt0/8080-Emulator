@@ -1,6 +1,6 @@
 #File Directory things (might be overkill idk yet)
 # INCLUDE = -I$(SRC_DIR)/headers
-OBJ_NAME = Emulator
+OBJ_NAME = Invaders
 
 BUILD_DIR = bin
 SRC_DIR = src
@@ -8,14 +8,14 @@ OBJ_DIR = obj
 
 #Compiler and linker things
 CC = gcc
-CCFLAGS = -g -o0#-g -Wall -Wextra
-SDL = -lSDL2main -lSDL2 #-lSDL_image -lSDL_ttf
+CCFLAGS = `sdl2-config --libs --cflags`
+CCFLAGS += -g
+# SDL = -lSDL2main -lSDL2 #-lSDL_image -lSDL_ttf
 LD = ld
 LDFLAGS = 
 INCLUDES = -Isrc/headers
 
 SRC = $(call rwildcard,$(SRC_DIR),*.c) 
-ASMSRC = $(call rwildcard,$(SRC_DIR),*.asm) 
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 OBJS += $(patsubst $(SRC_DIR)/%.asm, $(OBJ_DIR)/%_asm.o, $(ASMSRC))
 DIRS = $(wildcard $(SRC_DIR)/*)
@@ -30,17 +30,12 @@ Emulator: $(BUILD_DIR)/$(OBJ_NAME)
 $(BUILD_DIR)/$(OBJ_NAME): $(OBJS)
 	@ echo ~~~~~ LINKING $^ ~~~~~
 	@ mkdir -p $(@D)
-	$(CC) $(INCLUDES) $(SDL) $^ -o $@
+	$(CC) -o $@ $^ $(CCFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@ echo ~~~~~ COMPILING $^ ~~~~~
 	@ mkdir -p $(@D)
-	$(CC) $(CCFLAGS) $(INCLUDES) -c $^ -o $@
-
-$(OBJ_DIR)/%_asm.o: $(SRC_DIR)/%.asm
-	@ echo ~~~~~ COMPILING $^ ~~~~~
-	@ mkdir -p $(@D)
-	$(ASMC) $(ASMFLAGS) $^ -f elf64 -o $@
+	$(CC) -c -o $@ $(INCLUDES) $< $(CCFLAGS)
 
 setup:
 	@mkdir $(OBJ_DIR)
@@ -49,3 +44,4 @@ setup:
 clean:
 	rm -rf $(OBJ_DIR)/
 	rm -rf $(BUILD_DIR)/
+	rm ROM/invaders

@@ -2,7 +2,7 @@
 #ifndef __8080_H
 #define __8080_H
 
-#include <stdint.h>
+#include <inttypes.h>
 #include "memory.h"
 
 // I dont feel like typing __attribute__((unused)) all the time
@@ -23,11 +23,11 @@ typedef enum {
 } ConditionFlags;
 
 typedef struct {
+    uint8_t cy;
+    uint8_t ac;
     uint8_t s;
     uint8_t z;
-    uint8_t ac;
     uint8_t p;
-    uint8_t cy;
 } ProcStatusWord;
 
 // from the 8080 Manual, Flag bits will be check
@@ -41,7 +41,7 @@ typedef enum {
     CARRY_FLAG  = 1 << 7
 } flagBits;
 
-typedef struct State8080 {
+typedef struct {
     
     // Primary 8-bit accumulator
     uint8_t a;

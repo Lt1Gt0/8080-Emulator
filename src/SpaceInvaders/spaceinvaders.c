@@ -27,12 +27,8 @@ int main()
         fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
     }
 
-    int romfd;
-    if ((romfd = LoadSpaceInvaders(state)) == -1) {
-        fprintf(stderr, "Could not load rom\n");
-        exit(-1);
-    }
-
+    int romfd = LoadSpaceInvaders(state);
+    
     uint32_t* pixels = mainWindow->surface->pixels;
     for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
         for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
@@ -70,13 +66,13 @@ int LoadSpaceInvaders(State8080* state)
 
     if ((fd = open("ROM/invaders", O_RDONLY)) == -1) {
         fprintf(stderr, "Error opening invaders rom\n");
-        exit(-1);
+        return 0;
     }
 
-    state->memory.base = aligned_alloc(1<<16, 65536);
+    state->memory.base = aligned_alloc(1<<16, 65535);
     if (read(fd, state->memory.base + ROM_OFFSET, state->ROMSize) == 0) {
         fprintf(stderr, "Unable to load ROM into memory\n");
-        exit(-1);
+        return 0;
     }
 
     return fd;
@@ -249,7 +245,7 @@ void InvaderEventHandler(State8080* state, InvaderWindow* window)
 
 uint8_t InvadersIn(uint8_t port)
 {
-    fprintf(stderr, "Invaders IN - Port: %X\n", port);
+    // fprintf(stderr, "Invaders IN - Port: %X\n", port);
     switch (port) {
     case 0:
         return gamePorts.port0;
@@ -270,7 +266,7 @@ uint8_t InvadersIn(uint8_t port)
 
 void InvadersOut(uint8_t port, uint8_t data)
 {
-    fprintf(stderr, "Invaders OUT - Port: %X, Data: %X\n", port, data);
+    // fprintf(stderr, "Invaders OUT - Port: %X, Data: %X\n", port, data);
     switch (port) {
     case 2:
         assert(data <= 7);
@@ -296,7 +292,7 @@ void InvadersOut(uint8_t port, uint8_t data)
 
 void SetPixel(uint32_t* pix, uint32_t x, uint32_t y, uint8_t state)
 {
-    pix[x + y * WINDOW_HEIGHT] = state ? PIX_GREEN : PIX_BLACK;
+    pix[x + y * WINDOW_WIDTH] = state ? PIX_GREEN : PIX_BLACK;
 }
 
 void DrawVideoRAM(State8080* state, uint32_t* pixels)
@@ -307,10 +303,8 @@ void DrawVideoRAM(State8080* state, uint32_t* pixels)
     uint8_t vramData;
 
     static uint32_t temp[WINDOW_WIDTH * WINDOW_HEIGHT];
-
-    while (vramStart < vramEnd) {
-        vramData = *(uint8_t*)vramStart;
-
+    for (; vramStart < vramEnd; vramStart++) {
+        vramData = *(uint8_t*)(vramStart);
         temp[index++] = (vramData & 0x1) ? PIX_GREEN : PIX_BLACK;
         temp[index++] = (vramData & 0x2) >> 1 ? PIX_GREEN : PIX_BLACK;
         temp[index++] = (vramData & 0x4) >> 2 ? PIX_GREEN : PIX_BLACK;
@@ -319,15 +313,12 @@ void DrawVideoRAM(State8080* state, uint32_t* pixels)
         temp[index++] = (vramData & 0x32) >> 5 ? PIX_GREEN : PIX_BLACK;
         temp[index++] = (vramData & 0x64) >> 6 ? PIX_GREEN : PIX_BLACK;
         temp[index++] = (vramData & 0x128) >> 7 ? PIX_GREEN : PIX_BLACK;
-        
-        vramStart++;
     }
 
     // Rotation moment
-
     index = 0;
     for (int16_t x = (WINDOW_WIDTH - 1); x >= 0; x--) {
-        for (int16_t y = 0; y < WINDOW_HEIGHT; y++) {
+        for (uint16_t y = 0; y < WINDOW_HEIGHT; y++) {
             pixels[index++] = temp[x + (y * WINDOW_WIDTH)];
         }
     }

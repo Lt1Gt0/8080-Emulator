@@ -38,7 +38,7 @@ int ExecuteInstruction(State8080* state)
 
     int status = opcodeLookUp[opcode].targetFunc(state, prevPC, opcode);
     // state->cycles += opcodeLookUp[opcode].cycleCount;
-    PRINT_PROC_STATE(state);
+    // PRINT_PROC_STATE(state);
 
     return status;
 }

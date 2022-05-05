@@ -42,7 +42,7 @@ uint8_t* ByteRegRef(State8080* state, uint8_t ident)
         return &state->a;
     default:
         fprintf(stderr, "Unable to indetify register: %02x", ident);
-        exit(-1);
+        return (uint8_t*)-1;
     }
 }
 
@@ -58,8 +58,7 @@ uint16_t* ShortRegRef(State8080* state, uint8_t ident)
     case 0x03: // (011)
         return &state->sp;
     default:
-        fprintf(stderr, "Unable to identify register: %04x", ident);
-        exit(-1);
+        return (uint16_t*)-1;
     }
 }
 
@@ -114,7 +113,7 @@ void SetFlags(State8080* state, uint32_t stateFinal, uint8_t flags)
 
     if (flags & ZERO_FLAG) {
         // Check the first 8 bits to see if any are, if so z = 0
-        state->PSW.z = (stateFinal & 0xFF) ? 0 : 1;
+        state->PSW.z = (stateFinal & 0xFF) == 0 ? 1 : 0;
     }
 
     if (flags & AUX_FLAG)
@@ -122,17 +121,16 @@ void SetFlags(State8080* state, uint32_t stateFinal, uint8_t flags)
         fprintf(stderr, "Unable to affect flag: Auxiliary Carry");
 
     if (flags & PARITY_FLAG) {
+        uint8_t parity = 1;
         uint8_t check = stateFinal & 0xFF;
-        int totalBits = 0;
-        
-        for (int i = 0; i < 8; i++) {
-            if (check & 1)
-                totalBits++;
+
+        if (check) {
+            parity ^= (check & 1);
             check >>= 1;
         }
 
         // If totalBits is odd, P = 0
-        state->PSW.p = (totalBits & 1) ? 0 : 1;
+        state->PSW.p = parity;
     }
 
     if (flags & CARRY_FLAG) {
@@ -156,7 +154,7 @@ void auxSet(State8080* state, uint32_t baseVal, uint32_t dif)
 
 uint8_t PackPSW(ProcStatusWord psw)
 {
-    uint8_t status;
+    uint8_t status = 0;
     status |= psw.s ? SIGN_FLAG : 0;
     status |= psw.z ? ZERO_FLAG : 0;
     status |= psw.ac ? AUX_FLAG : 0;
@@ -181,8 +179,6 @@ ProcStatusWord UnpackPSW(uint8_t status)
 int UNDEFINED_OPCODE(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     fprintf(stderr, "Undefined Instruction\n");
-    exit(-1);
-
     return -1;
 }
 
@@ -423,7 +419,7 @@ int ADC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     uint16_t tmp = *(ByteRegRef(state, regIdentifier));
     tmp += state->a + state->PSW.cy;
     
-    SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
+    SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
     auxSet(state, state->a, *(ByteRegRef(state, regIdentifier)) + state->PSW.cy);
 
     state->a = tmp;
@@ -447,7 +443,7 @@ int ACI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     auxSet(state, state->a, MemRead(&state->memory, basePC + 1) + state->PSW.cy);
 
     state->a = imm;
-    PRINT_DECOMPILED(basePC, "ACI (%X)\n", imm);
+    PRINT_DECOMPILED(basePC, "ACI (%X)\n", MemRead(&state->memory, basePC + 1));
     return 1;
 }
 
@@ -497,14 +493,13 @@ int INR(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 int DCR(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     uint8_t regIdentifier = (opcode & 0x38) >> 3;
-    uint8_t* reg = ByteRegRef(state, regIdentifier);
-    uint16_t tmp = *reg;
-    tmp -= 1;
-
+    uint16_t regVal = *(ByteRegRef(state, regIdentifier));
+    uint16_t tmp = regVal;
+    regVal -= 1;
+    *(ByteRegRef(state, regIdentifier)) = (uint8_t)regVal;
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG);
-    auxSet(state, tmp + 1, -1);
+    auxSet(state, tmp, -1);
 
-    *reg = (uint8_t)tmp;
     PRINT_DECOMPILED(basePC, "DCR r(%X)\n", regIdentifier);
     return 1;
 }
@@ -578,12 +573,11 @@ int ANA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     uint8_t* reg = ByteRegRef(state, regIdentifier);
     uint8_t base = state->a;
     uint8_t target = *reg;
-    base &= target;
+    state->a &= (*reg);
 
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
     state->PSW.ac = ((base | target) & 0x08) ? 1 : 0;
 
-    state->a = target;
     PRINT_DECOMPILED(basePC, "ANA r(%X)\n", regIdentifier);
     return 1;
 }
@@ -622,14 +616,12 @@ int XRA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint8_t regIdentifier = (opcode & 0x07);
     uint8_t* reg = ByteRegRef(state, regIdentifier);
-    uint8_t base = state->a;
-    uint8_t target = *reg;
-    base ^= target;
+    uint16_t tmp = (*reg) ^ state->a;
+    state->a = tmp;
 
-    SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
+    SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
     state->PSW.ac = 0;
 
-    state->a = target;
     PRINT_DECOMPILED(basePC, "XRA r(%X)\n", regIdentifier);
     return 1;
 }
@@ -682,12 +674,13 @@ int ORI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int CMP(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
+    uint16_t baseAcc = state->a;
     uint8_t regIdentifier = (opcode & 0x07);
-    uint8_t* reg = ByteRegRef(state, regIdentifier);
-    uint8_t res = state->a - *reg;
+    uint16_t src = *(ByteRegRef(state, regIdentifier));
+    uint16_t res = baseAcc - src;
 
     SetFlags(state, res, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    auxSet(state, state->a, -res);
+    auxSet(state, baseAcc, -src);
 
     PRINT_DECOMPILED(basePC, "CMP (%X)\n", regIdentifier);
     return 1;
@@ -703,11 +696,12 @@ int CMP(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
  */
 int CPI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
+    uint16_t baseAcc = state->a;
     uint16_t imm = MemRead(&state->memory, basePC + 1);
-    uint16_t res = state->a - imm;
+    uint16_t res = baseAcc - imm;
 
     SetFlags(state, res, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    auxSet(state, state->a, -res);
+    auxSet(state, baseAcc, -imm);
 
     PRINT_DECOMPILED(basePC, "CPI (%X)\n", imm);
     return 1;
@@ -1022,7 +1016,9 @@ int XTHL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int SPHL(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-    state->sp = state->hl;
+    uint16_t tmp = state->hl;
+    state->hl = MemShortRead(&state->memory, state->sp);
+    MemShortWrite(&state->memory, state->sp, tmp);
     PRINT_DECOMPILED(basePC, "%s\n", "SPHL");
     return 1;
 }
@@ -1087,8 +1083,8 @@ int DI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int HLT(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-    state->halt = 1;
     PRINT_DECOMPILED(basePC, "%s\n", "HLT");
+    state->halt = 1;
     return 1;
 }
 
@@ -1099,9 +1095,8 @@ int NOP(UNUSED State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     return 1;
 }
 
-// Look up table for each 8080 opcode (256 opcodes in the 8080 manual)
-Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
-    [0x00] = {NOP, 4, 1},
+Opcode8080 opcodeLookUp[0x100] = {
+    [0x00] = {NOP, 4, 1},   // NOP Instruction
     [0x01] = {LXI, 10, 3},
     [0x02] = {STAX, 7, 1},
     [0x03] = {INX, 5, 1},
@@ -1356,7 +1351,7 @@ Opcode8080 opcodeLookUp[256] = { /* Github doesn't like clean formatting :( */
     [0xFC] = {CCON, 17, 3},
     [0xFD] = {CALL, 17, 3},
     [0xFE] = {CPI, 7, 2},
-    [0xFF] = {RST, 11, 1}
+    [0xFF] = {RST, 11, 1},
 };
 
 #endif // __OPCODES_H

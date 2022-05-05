@@ -8,10 +8,6 @@
 
 // Defines based off of information about space invader rom
 #define TOTAL_ROM_FILES 4
-#define MEMORY_SIZE     0x4000 // ROM + RAM + VRAM + RAM mirror
-#define ROM_SIZE        0x2000 // Size of the 4 ROM Files together
-#define STACK_START     0x2400
-#define PROGRAM_START   0x0000
 
 #define ROM_OFFSET      0x0000
 #define VRAM_OFFSET     0x2400 // Start address of VRAM
@@ -20,8 +16,8 @@
 #define HALF_1          0x0002 // Pending interrupt to call rst 1
 #define FULL_2          0x0004 // Pending interrupt to call rst 2
 
-#define WINDOW_WIDTH        256 // Window width, this will be rotated
-#define WINDOW_HEIGHT       224 // Window height, this will be rotated
+#define WINDOW_WIDTH (256) // Window width, this will be rotated
+#define WINDOW_HEIGHT (224)// Window height, this will be rotated
 
 
 /* 
@@ -36,12 +32,12 @@ Set up key mapping for sdl events
 */
 
 typedef struct {
-    SDL_Window* window;
-    SDL_Surface* surface;
-    uint32_t* pixels; 
-    SDL_Event event;
-    uint8_t quit;
-    SDL_TimerID vRAMTimer;
+    SDL_Window*     window;
+    SDL_Surface*    surface;
+    uint32_t*       pixels; 
+    uint8_t         quit;
+    SDL_Event       event;
+    SDL_TimerID     vRAMTimer;
 } InvaderWindow;
 
 typedef struct {
