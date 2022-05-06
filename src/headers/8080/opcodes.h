@@ -355,7 +355,7 @@ int STAX(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     } else {
         exit(-1);
     }
-    PRINT_DECOMPILED(basePC, "%s\n", "STAX");
+    
     return 1;
 }
 
@@ -560,7 +560,7 @@ int DCR(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     uint16_t tmp = regVal;
     regVal -= 1;
     *(ByteRegRef(state, regIdentifier)) = (uint8_t)regVal;
-    SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG);
+    SetFlags(state, regVal, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG);
     auxSet(state, tmp, -1);
 
     PRINT_DECOMPILED(basePC, "DCR r(%X)\n", regIdentifier);
@@ -944,6 +944,7 @@ int JMP(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
         // fprintf(stderr, "Illegal Opcode");
         exit(-1);
     }
+
     return 1;
 }
 
@@ -1021,6 +1022,7 @@ int RET(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
         PRINT_DECOMPILED(basePC, "%s\n", "UNDF");
         exit(-1);
     }
+
     return 1;
 }
 
