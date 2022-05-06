@@ -1,7 +1,10 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
+
+#include "Debug/debug.h"
 #include "8080/8080.h"
 #include "8080/opcodes.h"
-#include "Debug/debug.h"
-// #include "SpaceInvaders/spaceinvaders.h"
 
 State8080* Init8080(uint16_t pc, uint8_t(*in)(uint8_t), void(*out)(uint8_t, uint8_t))
 {

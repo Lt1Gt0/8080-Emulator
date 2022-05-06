@@ -15,7 +15,7 @@ int main()
     InvaderWindow* mainWindow = InitInvaderWindow();
     
     if (mainWindow->window == 0x0) {
-        fprintf(stderr, "Error initializing space invaders window\n");
+        // fprintf(stderr, "Error initializing space invaders window\n");
         exit(-1);  
     }  
 
@@ -24,7 +24,7 @@ int main()
     gamePorts.port2 = 0x03;
 
     if (mainWindow->surface->format->format != SDL_PIXELFORMAT_RGB888) {
-        fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
+        // fprintf(stderr, "Window is not using SDL_PIXELFORMAT_RGB888");
     }
 
     int romfd = LoadSpaceInvaders(state);
@@ -65,13 +65,13 @@ int LoadSpaceInvaders(State8080* state)
     PrepareROM(state);
 
     if ((fd = open("ROM/invaders", O_RDONLY)) == -1) {
-        fprintf(stderr, "Error opening invaders rom\n");
+        // fprintf(stderr, "Error opening invaders rom\n");
         return 0;
     }
 
     state->memory.base = aligned_alloc(1<<16, 65535);
     if (read(fd, state->memory.base + ROM_OFFSET, state->ROMSize) == 0) {
-        fprintf(stderr, "Unable to load ROM into memory\n");
+        // fprintf(stderr, "Unable to load ROM into memory\n");
         return 0;
     }
 
@@ -90,7 +90,7 @@ void PrepareROM(State8080* state)
         fp = fopen(ROMFileNames[i], "rb");
 
         if (fp == NULL) {
-            fprintf(stderr, "ERROR: Could not open [%s]\nExiting...\n", ROMFileNames[i]);
+            // fprintf(stderr, "ERROR: Could not open [%s]\nExiting...\n", ROMFileNames[i]);
             exit(-1);
         }
 
@@ -115,7 +115,7 @@ InvaderWindow* InitInvaderWindow()
     InvaderWindow* mainWindow = (InvaderWindow*)calloc(1, sizeof(InvaderWindow));
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
-        fprintf(stderr, "Error: Could not initialize SDL - %s\n", SDL_GetError());
+        // fprintf(stderr, "Error: Could not initialize SDL - %s\n", SDL_GetError());
         return 0x0;
     }
 
@@ -124,14 +124,14 @@ InvaderWindow* InitInvaderWindow()
         WINDOW_HEIGHT, WINDOW_WIDTH, 0); // No flags for now
 
     if (!mainWindow->window) {
-        fprintf(stderr, "Error: Could not intialize main window - %s\n", SDL_GetError());
+        // fprintf(stderr, "Error: Could not intialize main window - %s\n", SDL_GetError());
         SDL_Quit();
         return 0x0;
     }
 
     mainWindow->surface = SDL_GetWindowSurface(mainWindow->window);
     if (mainWindow->surface == NULL) {
-        fprintf(stderr, "Error: Could not initialize window surface - %s\n", SDL_GetError());
+        // fprintf(stderr, "Error: Could not initialize window surface - %s\n", SDL_GetError());
         exit(-1);
     }
 
@@ -146,29 +146,30 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         case SDLK_c: // coin in
             gamePorts.port1 |= 1;
             break;
-        case SDLK_s: // P1 Start
+        case SDLK_RETURN: // P1 Start
             gamePorts.port1 |= 1 << 2;
             break;
-        case SDLK_w: // P1 Shoot
+        case SDLK_UP: // P1 Shoot
             gamePorts.port1 |= 1 << 4;
             break;
-        case SDLK_a: // P1 Left
+        case SDLK_LEFT: // P1 Left
             gamePorts.port1 |= 1 << 5;
             break;
-        case SDLK_d: // P1 Right
+        case SDLK_RIGHT: // P1 Right
             gamePorts.port1 |= 1 << 6;
             break;
-        case SDLK_LEFT: // P2 Left
+
+        case SDLK_a: // P2 Left
             gamePorts.port2 |= 1 << 5;
             break;
-        case SDLK_RIGHT: // P2 Right
-            gamePorts.port2 |= 1 << 6;
+        case SDLK_d: // P2 Right
+            gamePorts.port1 |= 1 << 6;
             break;
-        case SDLK_RETURN: // P2 Start
+        case SDLK_s: // P2 Start
             gamePorts.port1 |= 1 << 1;
             break;
-        case SDLK_UP: // P2 Shoot
-            gamePorts.port2 |= 1 << 4;
+        case SDLK_w: // P2 Shoot
+            gamePorts.port1 |= 1 << 4;
             break;
         default:
             break;
@@ -178,35 +179,36 @@ void InvadersInputHandler(SDL_KeyboardEvent event)
         case SDLK_c: // coin in
             gamePorts.port1 &= ~(1);
             break;
-        case SDLK_s: // P1 Start
+        case SDLK_RETURN: // P1 Start
             gamePorts.port1 &= ~(1 << 2);
             break;
-        case SDLK_w: // P1 Shoot
+        case SDLK_UP: // P1 Shoot
             gamePorts.port1 &= ~(1 << 4);
             break;
-        case SDLK_a: // P1 Left
+        case SDLK_LEFT: // P1 Left
             gamePorts.port1 &= ~(1 << 5);
             break;
-        case SDLK_d: // P1 Right
+        case SDLK_RIGHT: // P1 Right
             gamePorts.port1 &= ~(1 << 6);
             break;
-        case SDLK_LEFT: // P2 Left
+
+        case SDLK_a: // P2 Left
             gamePorts.port2 &= ~(1 << 5);
             break;
-        case SDLK_RIGHT: // P2 Right
-            gamePorts.port2 &= ~(1 << 6);
+        case SDLK_d: // P2 Right
+            gamePorts.port1 &= ~(1 << 6);
             break;
-        case SDLK_RETURN: // P2 Start
+        case SDLK_s: // P2 Start
             gamePorts.port1 &= ~(1 << 1);
             break;
-        case SDLK_UP: // P2 Shoot
-            gamePorts.port2 &= ~(1 << 4);
+        case SDLK_w: // P2 Shoot
+            gamePorts.port1 &= ~(1 << 4);
             break;
         default:
             break;
         }
     }
-    fprintf(stderr, "GamePorts after: %d | %d\n", gamePorts.port1, gamePorts.port2);
+    // fprintf(stderr, "GamePorts after: %d | %d\n", gamePorts.port1, gamePorts.port2);
 }
 
 void InvaderEventHandler(State8080* state, InvaderWindow* window)
@@ -228,18 +230,18 @@ void InvaderEventHandler(State8080* state, InvaderWindow* window)
 
         break;
     case SDL_KEYDOWN:
-        fprintf(stderr, "Key [%c] pressed, isfake %X\n", window->event.key.keysym.sym, window->event.key.repeat);
+        // fprintf(stderr, "Key [%c] pressed, isfake %X\n", window->event.key.keysym.sym, window->event.key.repeat);
         if (!window->event.key.repeat) {
             InvadersInputHandler(window->event.key);
         }
 
         break;
     case SDL_KEYUP:
-        fprintf(stderr, "Key: %c realeased\n", window->event.key.keysym.sym);
+        // fprintf(stderr, "Key: %c realeased\n", window->event.key.keysym.sym);
         InvadersInputHandler(window->event.key);
         break;
     default:
-        fprintf(stderr, "Unhandled Event type: %X\n", window->event.type);
+        // fprintf(stderr, "Unhandled Event type: %X\n", window->event.type);
     }
 }
 
@@ -258,9 +260,10 @@ uint8_t InvadersIn(uint8_t port)
         uint8_t tmp = (uint8_t)((gamePorts.hiddenReg) >> (8 - gamePorts.shiftConfig));
         return tmp;
     default:
-        fprintf(stderr, "UNKNOWN PORT: %X", port);
+        // fprintf(stderr, "UNKNOWN PORT: %X", port);
         exit(-1);
     }
+
     return 0;
 }
 
@@ -285,7 +288,7 @@ void InvadersOut(uint8_t port, uint8_t data)
     case 6:
         break;
     default:
-        fprintf(stderr, "UNKNOWN PORT: %X", port);
+        // fprintf(stderr, "UNKNOWN PORT: %X", port);
         exit(-1);
     }
 }

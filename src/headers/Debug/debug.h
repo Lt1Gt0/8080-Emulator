@@ -17,7 +17,7 @@
     #define PRINT_PROC_STATE(state) \
     { \
         fprintf(stdout, "\tC=%d, P=%d, Z=%d\n", state->PSW.cy, state->PSW.p, state->PSW.z); \
-        fprintf(stdout, "\tA $%02x | BC $%04x | DE $%04x | HL $%04x | SP $%04x\n", \
+        fprintf(stdout, "\tA $%02X | BC $%04X | DE $%04X | HL $%04X | SP $%04X\n", \
             state->a, state->bc, state->de, state->hl, state->sp); \
     }
 #else
