@@ -124,7 +124,7 @@ void SetFlags(State8080* state, uint32_t stateFinal, uint8_t flags)
         uint8_t parity = 1;
         uint8_t check = stateFinal & 0xFF;
 
-        if (check) {
+        while (check) {
             parity ^= (check & 1);
             check >>= 1;
         }
@@ -203,7 +203,7 @@ int MOV(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
     00 111 000 >> 3 = DDD
     */
     uint8_t dstIdentifier = (0x38 & opcode) >> 3;
-    uint8_t srcIdentifier = (0x07 & opcode);
+    uint8_t srcIdentifier = 0x07 & opcode;
 
     uint8_t* dst = ByteRegRef(state, dstIdentifier);
     uint8_t* src = ByteRegRef(state, srcIdentifier);
@@ -276,7 +276,7 @@ int LDA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 int STA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint16_t offset = MemShortRead(&state->memory, basePC + 1);
-    MemShortWrite(&state->memory, offset, state->a);
+    MemWrite(&state->memory, offset, state->a);
     PRINT_DECOMPILED(basePC, "%s\n", "STA");
     return 1;
 }
@@ -334,6 +334,7 @@ int LDAX(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
         // fprintf(stderr, "ILLEGAL OPCODE");
         exit(-1);
     }
+
     return 1;
 }
 
@@ -389,7 +390,7 @@ int XCHG(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int ADD(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-    uint8_t regIdentifier = (0x07 & opcode);
+    uint8_t regIdentifier = 0x07 & opcode;
     uint16_t tmp = *(ByteRegRef(state, regIdentifier));
     tmp += state->a;
 
@@ -432,7 +433,7 @@ int ADI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int ADC(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-    uint8_t regIdentifier = (0x07 & opcode);
+    uint8_t regIdentifier = 0x07 & opcode;
     uint16_t tmp = *(ByteRegRef(state, regIdentifier));
     tmp += state->a + state->PSW.cy;
     
@@ -468,12 +469,12 @@ int ACI(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 // Flags: Z, S, P, CY, AC
 int SUB(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-    uint8_t regIdentifier = (opcode & 0x07);
+    uint8_t regIdentifier = opcode & 0x07;
     uint16_t tmp = state->a;
     tmp -= *(ByteRegRef(state, regIdentifier));
 
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    auxSet(state, state->a, -(*(ByteRegRef(state, regIdentifier))));
+    auxSet(state, state->a, - (*(ByteRegRef(state, regIdentifier))));
     state->a = tmp;
 
     PRINT_DECOMPILED(basePC, "SUB r(%X)\n", regIdentifier);
@@ -488,7 +489,7 @@ int SUI(State8080* state,UNUSED uint16_t basePC, UNUSED uint8_t opcode)
     tmp -= MemRead(&state->memory, basePC + 1);
 
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    auxSet(state, state->a, -(MemRead(&state->memory, basePC + 1)));
+    auxSet(state, state->a, - (MemRead(&state->memory, basePC + 1)));
     state->a = tmp;
 
     PRINT_DECOMPILED(basePC, "SUI %X\n", MemRead(&state->memory, basePC + 1));
@@ -501,10 +502,10 @@ int SBB(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
     uint8_t regIdentifier = opcode & 0x07;
     uint16_t tmp = state->a;
-    tmp -=(*(ByteRegRef(state, regIdentifier)));
+    tmp -= (*(ByteRegRef(state, regIdentifier)) + state->PSW.cy);
 
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
-    auxSet(state, state-> a, -(*(ByteRegRef(state, regIdentifier))));
+    auxSet(state, state->a, - (*(ByteRegRef(state, regIdentifier))) - 1);
     state->a = tmp;
 
     PRINT_DECOMPILED(basePC, "SBB r(%X)\n", regIdentifier);
@@ -517,7 +518,7 @@ int SBI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint8_t target = MemRead(&state->memory, basePC + 1);
     uint16_t tmp = state->a;
-    tmp -= target - state->PSW.cy;
+    tmp = tmp - target - state->PSW.cy;
 
     SetFlags(state, tmp, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
     auxSet(state, state->a, -target - state->PSW.cy);
@@ -588,7 +589,7 @@ int INX(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 // Flags: None
 int DCX(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-    uint8_t regPairIdentifier = (opcode * 0x30) >> 4;
+    uint8_t regPairIdentifier = (opcode & 0x30) >> 4;
     uint16_t* regPair = ShortRegRef(state, regPairIdentifier);
     (*regPair)--;
 
@@ -623,21 +624,18 @@ int DAA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     if ((state->a & 0xF) > 0x9 || state->PSW.ac) {
         state->PSW.ac = 0;
-        if (((state->a & 0xF) + 0x06) > 0xF) {
+        if (((state->a & 0xF) + 0x06) > 0xF) 
             state->PSW.ac = 1;
-        }
 
-        if ((state->a + 0x6) & 0x100) {
+        if ((state->a + 0x6) & 0x100) 
             state->PSW.cy = 1;
-        }
 
         state->a += 0x6;
     }
 
     if ((state->a & 0xF0) >> 4 > 0x9 || state->PSW.cy == 1) {
-        if(((state->a >> 4) + 0x6) > 0xF) {
+        if(((state->a >> 4) + 0x6) > 0xF)
             state->PSW.cy = 1;
-        }
 
         state->a += 0x60;
     }
@@ -659,11 +657,11 @@ int DAA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int ANA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-    uint8_t regIdentifier = (opcode & 0x07);
+    uint8_t regIdentifier = opcode & 0x07;
     uint8_t* reg = ByteRegRef(state, regIdentifier);
     uint8_t base = state->a;
     uint8_t target = *reg;
-    state->a &= (*reg);
+    state->a &= *reg;
 
     SetFlags(state, state->a, ZERO_FLAG | SIGN_FLAG | PARITY_FLAG | CARRY_FLAG);
     state->PSW.ac = ((base | target) & 0x08) ? 1 : 0;
@@ -704,7 +702,7 @@ int ANI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  */
 int XRA(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
-    uint8_t regIdentifier = (opcode & 0x07);
+    uint8_t regIdentifier = opcode & 0x07;
     uint8_t* reg = ByteRegRef(state, regIdentifier);
     uint16_t tmp = (*reg) ^ state->a;
     state->a = tmp;
@@ -741,7 +739,7 @@ int XRI(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 // (CY and AC flags are cleared)
 int ORA(State8080* state, UNUSED uint16_t basePC, uint8_t opcode)
 {
-    uint8_t regIdentifier = (opcode & 0x07);
+    uint8_t regIdentifier = opcode & 0x07;
     uint8_t* reg = ByteRegRef(state, regIdentifier);
     uint16_t tmp = (*reg) | state->a;
 
@@ -1127,8 +1125,6 @@ int PUSH(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
  *  
  * Flags - None
  */
-// POP_RP, POP_PSW
-// Flags: None
 int POP(State8080* state, UNUSED uint16_t basePC, UNUSED uint8_t opcode)
 {
     uint8_t regPairIdentifier = (0x30 & opcode) >> 4;

@@ -1,5 +1,4 @@
 #File Directory things (might be overkill idk yet)
-# INCLUDE = -I$(SRC_DIR)/headers
 OBJ_NAME = Invaders
 
 BUILD_DIR = bin
@@ -10,7 +9,6 @@ OBJ_DIR = obj
 CC = gcc
 CCFLAGS = `sdl2-config --libs --cflags`
 CCFLAGS += -g
-# SDL = -lSDL2main -lSDL2 #-lSDL_image -lSDL_ttf
 LD = ld
 LDFLAGS = 
 INCLUDES = -Isrc/headers
@@ -44,4 +42,4 @@ setup:
 clean:
 	rm -rf $(OBJ_DIR)/
 	rm -rf $(BUILD_DIR)/
-	rm ROM/invaders
+	rm src/SpaceInvaders/ROM/invaders

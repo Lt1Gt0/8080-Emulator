@@ -28,14 +28,13 @@ int main()
     }
 
     int romfd = LoadSpaceInvaders(state);
-    
     uint32_t* pixels = mainWindow->surface->pixels;
     for (uint32_t y = 0; y < WINDOW_HEIGHT; y++) {
         for (uint32_t x = 0; x < WINDOW_WIDTH; x++) {
             SetPixel(pixels, x, y, 1);
         }
     }
-    
+       
     SDL_UpdateWindowSurface(mainWindow->window);
     mainWindow->vRAMTimer = SDL_AddTimer(VRAM_DELAY, UpdateVRAM, NULL);
 
@@ -64,7 +63,7 @@ int LoadSpaceInvaders(State8080* state)
     int fd;
     PrepareROM(state);
 
-    if ((fd = open("ROM/invaders", O_RDONLY)) == -1) {
+    if ((fd = open("src/SpaceInvaders/ROM/invaders", O_RDONLY)) == -1) {
         // fprintf(stderr, "Error opening invaders rom\n");
         return 0;
     }
@@ -80,8 +79,8 @@ int LoadSpaceInvaders(State8080* state)
 
 void PrepareROM(State8080* state)
 {
-    FILE* FinalROM = fopen("ROM/invaders", "wb+");
-    char* ROMFileNames[4] = {"ROM/invaders.h", "ROM/invaders.g", "ROM/invaders.f", "ROM/invaders.e"};
+    FILE* FinalROM = fopen("src/SpaceInvaders/ROM/invaders", "wb+");
+    char* ROMFileNames[4] = {"src/SpaceInvaders/ROM/invaders.h", "src/SpaceInvaders/ROM/invaders.g", "src/SpaceInvaders/ROM/invaders.f", "src/SpaceInvaders/ROM/invaders.e"};
     FILE* fp;
     size_t filesize;
     unsigned char* buf;
